@@ -3,27 +3,33 @@ const setEmoji = require('./autoSetEmoji.js');
 const emojiRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 const modals = require('./modals.js'); 
 const generics = require('./generics.js'); 
-const fireBase = require('./firestore/dungeon.js'); 
 const utils = require('./utils.js'); 
-
+const dungeonsFirebase = require('./firestore/dungeon.js')
+const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
 
 
 module.exports = {
-    async executePollsEvents(interaction)
+    async executePollsEvents(interaction, guild)
     {
       if(!interaction.isChatInputCommand()) return;
+      const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
       
       switch(interaction.commandName)
       {
-        case "sondaggio-data": await this.sondaggioData(interaction); break;
-        case "sondaggio-si-no": await this.sondaggioSiNo(interaction); break;
-        case "sondaggio-caccia": await this.sondaggioCaccia(interaction); break;
-
+        case "sondaggio-data": await this.sondaggioData(interaction,information); break;
+        case "sondaggio-si-no": await this.sondaggioSiNo(interaction,information); break;
+        case "sondaggio-caccia": await this.sondaggioCaccia(interaction,guild,information); break;
       }
       return;
     },
-    async sondaggioData(interaction)
+    async sondaggioData(interaction, information)
     {
+      if(!information.isUtente)
+      {
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        return;
+      }
+
       interaction.showModal(modals.sondaggioData());
 
       const submitted = await interaction.awaitModalSubmit({
@@ -68,7 +74,7 @@ module.exports = {
         .setColor(0x0099FF)
         .setTitle("Evento il giorno: "+data)
         .setDescription("@everyone")
-        .setAuthor({ name: interaction.user.globalName, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
+        .setAuthor({ name: interaction.member.nickname, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
         .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Anchor_pictogram_yellow.svg/845px-Anchor_pictogram_yellow.svg.png')
         .addFields(
           embedFields
@@ -86,8 +92,13 @@ module.exports = {
         }
     },
 
-    async sondaggioSiNo(interaction)
+    async sondaggioSiNo(interaction,information)
     {
+      if(!information.isUtente)
+      {
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        return;
+      }
       interaction.showModal(modals.sondaggioSiNo());
 
       const submitted = await interaction.awaitModalSubmit({
@@ -102,7 +113,7 @@ module.exports = {
       const exampleEmbed = new EmbedBuilder()
             .setColor(0x0099FF)
             .setDescription("**"+pollQuestion+"**"+"@everyone")
-            .setAuthor({ name: interaction.user.globalName, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
+            .setAuthor({ name: interaction.member.nickname, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
             .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Anchor_pictogram_yellow.svg/845px-Anchor_pictogram_yellow.svg.png')
             .addFields(
               {name: "Si", value:"0",inline:true},
@@ -128,17 +139,22 @@ module.exports = {
         submitted.editReply({components:[pollButtons]});
     },
 
-    async sondaggioCaccia(interaction)
+    async sondaggioCaccia(interaction,guild,information)
     {
+      if(!information.isUtente)
+      {
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        return;
+      }
+
       var dungeons = new Array();
-      dungeons=await fireBase.getAllDungeon();
+      dungeons=await dungeonsFirebase.getDungeonDocuments();
       const reply=await interaction.reply({
         content: 'Cominciamo! Scegli il dungeon in cui andrete a caccia.',
         components: [generics.creaLookup(dungeons,'dungeonsId','Scegli un dungeon')],
         ephemeral: true
       });
-      var dungeons = new Array();
-      dungeons=await fireBase.getAllDungeon();
+
       const collector = reply.createMessageComponentCollector({
         componentType: ComponentType.StringSelect, 
       });
@@ -151,12 +167,12 @@ module.exports = {
         const randomEmoji = utils.getRandomEmoji();
         var text="**Questa sera caccia a "+dungeonScelto+" vota: "+emoji+" se __ci sei__, "+randomEmoji+" se __non ci sei__**.";
         const message= await interaction.followUp({
-          embeds:[generics.creaEmbeded("Caccia",text,interaction)],
+          embeds:[generics.creaEmbeded("Caccia a "+dungeonScelto+".",text,interaction)],
           fetchReply:true
         });
         message.react(emoji);
         message.react(randomEmoji);
-        await fireBase.insertCacciaOrganizzata({author:interaction.member.nickname,destination:dungeonScelto});
+        await dungeonsFirebase.insertCacciaOrganizzata({author:interaction.user.globalName,destination:dungeonScelto, guild:guild,idMessage:message.id,idChannel:interaction.channelId});
       });
     }
 }

@@ -2,7 +2,7 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia };
 
 
 function sondaggioData()
@@ -49,6 +49,60 @@ function sondaggioSiNo()
     const firstActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
 
     modal.addComponents(firstActionRow);
+    return modal;
+}
+
+
+function modaleStopCaccia()
+{
+    const modal = new ModalBuilder()
+    .setCustomId('modaleStopCaccia')
+    .setTitle('Resoconto');
+
+    const soldi = new TextInputBuilder()
+      .setCustomId('soldi')
+      .setLabel("🪙 Monete")
+      .setPlaceholder("Inserisci qui le monete.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+    const frammenti = new TextInputBuilder()
+      .setCustomId('frammenti')
+      .setLabel("❄️ Frammenti")
+      .setPlaceholder("Inserisci qui i frammenti (considerando che un cristallo vale 20 frammenti).")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+    const fama = new TextInputBuilder()
+      .setCustomId('fama')
+      .setLabel("⬆️ Fama")
+      .setPlaceholder("Inserisci qui la fama ricevuta.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+    const nucleiInfusi = new TextInputBuilder()
+      .setCustomId('nucleiFormidabili')
+      .setLabel("🔮 Nuclei e nuclei formidabili")
+      .setPlaceholder("Inserisci qui i nuclei.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+    const sangue = new TextInputBuilder()
+      .setCustomId('sangue')
+      .setLabel("🩸 Fiale di sangue")
+      .setPlaceholder("Inserisci qui le fiale di sangue (tutte sommate).")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+
+    const a = new ActionRowBuilder().addComponents(soldi);
+    const b = new ActionRowBuilder().addComponents(frammenti);
+    const c = new ActionRowBuilder().addComponents(fama);
+    const d = new ActionRowBuilder().addComponents(nucleiInfusi);
+    const e = new ActionRowBuilder().addComponents(sangue);
+
+
+    modal.addComponents(a,b,c,d,e);
     return modal;
 }
 

@@ -1,24 +1,6 @@
 require('dotenv').config({path:"../.env"});
+const utils = require('./utils.js');
 const {REST, Routes, ApplicationCommandOptionType} = require("discord.js")
-const dungeons = [
-  { name: 'Kur Nughul 2' },
-  { name: 'Broccoli' },
-  { name: 'Capitale Orchesca TS' },
-  { name: 'Isola dei Draghi' },
-  { name: 'Minotauri Isola' },
-  { name: 'Draconiani' },
-  { name: 'Surtur' },
-  { name: 'Illitidh' },
-  { name: 'Deva' },
-  { name: 'Kur Nughul 3' },
-  { name: 'Piramide Elfica' },
-  { name: 'Piramide di Tremec' },
-  { name: 'Kur Nughul 1' },
-  { name: 'Kur Nughul 4' },
-  { name: 'Gargoyle TS' },
-  { name: 'Pirati non morti' },
-  { name: 'Damnagoth' },
-];
 
 const commands= [
     {
@@ -44,11 +26,49 @@ const commands= [
           type: ApplicationCommandOptionType.Number,
           required:true,
           choices:
-          Object.values(dungeons).map(item => ({
+          Object.values(utils.dungeons).map(item => ({
             name: item.name,
-            value: "1", // Puoi usare 'name' come valore se desideri
+            value: item.value,
           }))
         }
+      ]
+    },
+    {
+      name:'set-classe',
+      description:'Permette di settare classi inserendo il role specifico discord',
+      options:
+      [
+        {
+          name:"ruolo",
+          description:"Il ruolo da mappare",
+          required:true,
+          type: ApplicationCommandOptionType.Role
+        },
+        {name:"classe", description:"La classe da accoppiare", requred:true, type:ApplicationCommandOptionType.String},
+      ]
+    },
+    {
+      name:'set-type-user',
+      description:'Permette di registrare la tipologia di ruolo in modo che possa accedere a determinati comandi.',
+      options:
+      [
+        {
+          name:"ruolo",
+          description:"Il ruolo da mappare",
+          required:true,
+          type: ApplicationCommandOptionType.Role
+        },
+        {
+          name:"tipologia-ruolo",
+          description:"Admin: accedono a qualunque funzione. Utente: accede alle funzioni base (poll)",
+          required:true,
+          type: ApplicationCommandOptionType.String,
+          choices:
+          [
+            {name:"Admin",value:"admin"},
+            {name:"Utente",value:"utente"}
+          ]
+        },
       ]
     }
   ];
