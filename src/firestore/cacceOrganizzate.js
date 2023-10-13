@@ -49,7 +49,7 @@ async function getCacceTempoLootDocument(guildId,nomeDungeon) {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()-0.2);
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-  console.log(nomeDungeon)
+
   let que = query(collectionRef, where("date", ">=", startOfDay), where("date", "<", endOfDay), where("guildId","==",guildId), where("destination","==",nomeDungeon));
 
   try {
@@ -65,6 +65,7 @@ async function getCacceTempoLootDocument(guildId,nomeDungeon) {
               channelId:doc.data().channelId,
               messageId:doc.data().messageId,
               reference: doc.ref,
+              tempo:doc.data().tempo
           };
           array.push(object);
       });
@@ -80,7 +81,6 @@ async function insertCacciaTempoLoot({author, destination, guild, messageId,chan
     const dataDaInserire = {
         author: author,
         destination: destination,
-        loot: [],
         date: new Date(),
         guildName: guild.name,
         guildId: guild.id,
@@ -113,8 +113,8 @@ async function getUsersFromReaction(client, channelId, messageId, dungeonName, g
     console.log('Emoji non trovata.');
     return [];
   }
-
   const targetMessage = await channel.messages.fetch(messageId);
+
 
   if (!targetMessage) {
     console.log('Messaggio non trovato.');
@@ -122,7 +122,6 @@ async function getUsersFromReaction(client, channelId, messageId, dungeonName, g
   }
 
   const reactions = targetMessage.reactions.cache.filter(reaction => reaction.emoji.name === emojiDungeon);
-
   if (!reactions.size) {
     console.log('Nessuna reazione con l\'emoji desiderata.');
     return [];
@@ -134,14 +133,12 @@ async function getUsersFromReaction(client, channelId, messageId, dungeonName, g
     if (reaction && reaction.users && reaction.users.cache.size > 0) {
       const users = await reaction.users.fetch();
       const usersArray = Array.from(users.values());
-      
       await Promise.all(usersArray.map(async (user) => {
         const member = await interaction.guild.members.fetch(user);
-        
         if (member) {
           const rolesArray = Array.from(member.roles.cache.values()).map(role => role.name);
           const tipoClasse = rolesToSearch.find(roleInfo => rolesArray.includes(roleInfo.role))?.tipoClasse;
-  
+          
           if (tipoClasse != undefined) {
             usersWithRoles.push({ username: user.username, roles: tipoClasse });
           } else {
@@ -151,7 +148,6 @@ async function getUsersFromReaction(client, channelId, messageId, dungeonName, g
       }));
     }
   }));
-
   return usersWithRoles.filter(x=> x.username!="ROTBOT");
 }
 async function updateCacciaTempoLoot(documentReference, newData)

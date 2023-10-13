@@ -61,6 +61,14 @@ module.exports =
         
         return {hours:hours, minutes:minutes, seconds: seconds};
     },
+    trovaDataPiùRecente(arrayDocumenti) {
+        return arrayDocumenti.reduce((dataRecente, documento) => {
+          const timestamp = documento.date.seconds * 1000 + documento.date.nanoseconds / 1000000;
+          const timestampRecente = dataRecente.date.seconds * 1000 + dataRecente.date.nanoseconds / 1000000;
+      
+          return timestamp > timestampRecente ? documento : dataRecente;
+        });
+      },
     getRandomEmoji() {
         const randomEmoji = ['🐗','🦢','🐁','🦜','⚔️','🦆','😡','🤬','😵‍💫','🤕','🥺'];
         const indiceCasuale = Math.floor(Math.random() * randomEmoji.length);

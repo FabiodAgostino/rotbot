@@ -74,8 +74,8 @@ module.exports = {
         .setColor(0x0099FF)
         .setTitle("Evento il giorno: "+data)
         .setDescription("@everyone")
-        .setAuthor({ name: interaction.member.nickname, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
-        .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Anchor_pictogram_yellow.svg/845px-Anchor_pictogram_yellow.svg.png')
+        .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
+        .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
         .addFields(
           embedFields
         )
@@ -111,10 +111,10 @@ module.exports = {
 
       const pollQuestion = submitted.fields.getTextInputValue("question");
       const exampleEmbed = new EmbedBuilder()
-            .setColor(0x0099FF)
+            .setColor(0xf9de35)
             .setDescription("**"+pollQuestion+"**"+"@everyone")
-            .setAuthor({ name: interaction.member.nickname, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Anchor_pictogram_yellow.svg/845px-Anchor_pictogram_yellow.svg.png')
+            .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
+            .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
             .addFields(
               {name: "Si", value:"0",inline:true},
               {name: "No", value:"0",inline:true}

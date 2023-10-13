@@ -26,8 +26,8 @@ const commands= [
           type: ApplicationCommandOptionType.Number,
           required:true,
           choices:
-          Object.values(utils.dungeons).map(item => ({
-            name: item.name,
+          Object.values(utils.dungeons).sort((a, b) => a.name.localeCompare(b.name)).map(item => ({
+            name: item.emoji+" "+item.name,
             value: item.value,
           }))
         }
@@ -68,8 +68,12 @@ const commands= [
             {name:"Admin",value:"admin"},
             {name:"Utente",value:"utente"}
           ]
-        },
+        }
       ]
+    },
+    {
+      name:'get-version',
+      description:'Ritorna la versione del bot.'
     }
   ];
 

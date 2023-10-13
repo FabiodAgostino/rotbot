@@ -24,7 +24,6 @@ async function insertCacciaOrganizzata({author, destination, guild,idMessage, id
     const dataDaInserire = {
         author: author,
         destination: destination,
-        subscribers: [],
         date: new Date(),
         guild: guild.name,
         guildId: guild.id,

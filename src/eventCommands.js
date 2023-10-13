@@ -1,3 +1,4 @@
+require('dotenv').config({path:"../.env"});
 const cacceOrganizzate = require('./firestore/cacceOrganizzate.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
@@ -18,6 +19,7 @@ module.exports = {
         case "start-caccia": await this.startCaccia(interaction,guild,information); break;
         case "set-classe": await this.setClasse(interaction,guild,information); break;
         case "set-type-user": await this.setSuperuser(interaction,guild,information); break;
+        case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+process.env.VERSION+"__", ephemeral:true})
 
       }
       return;
@@ -40,7 +42,7 @@ module.exports = {
         });
         return;
       }
-      const cacciaAttiva = cacceAttive.filter(x=> x.destination===nomeDungeon);
+      const cacciaAttiva = utils.trovaDataPiùRecente(cacceAttive.filter(x=> x.destination===nomeDungeon));
 
       if(cacciaAttiva==undefined || cacciaAttiva.length==0)
       {
@@ -53,7 +55,7 @@ module.exports = {
       else
       {
         const name = interaction.user.globalName.replace("-","");
-        const buttonStart=generics.creaButton(ButtonStyle.Primary,"Start!","button-start-"+name+"-"+nomeDungeon+"-"+cacciaAttiva[0].channelId+"-"+cacciaAttiva[0].messageId);
+        const buttonStart=generics.creaButton(ButtonStyle.Primary,"Start!","button-start-"+name+"-"+nomeDungeon+"-"+cacciaAttiva.channelId+"-"+cacciaAttiva.messageId);
         interaction.reply({
           content:"Diamo il via alla tua caccia a "+nomeDungeon+", premi start quando sei pronto.",
           components:[buttonStart],

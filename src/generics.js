@@ -37,8 +37,8 @@ module.exports =
         .setColor(0x0099FF)
         .setTitle(title)
         .setDescription("@everyone")
-        .setAuthor({ name: interaction.member.nickname, iconURL:"https://static-00.iconduck.com/assets.00/avatar-icon-256x256-1r8gwgdd.png"})
-        .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Anchor_pictogram_yellow.svg/845px-Anchor_pictogram_yellow.svg.png')
+        .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
+        .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
         .addFields(
             embeds
         )

@@ -79,7 +79,7 @@ module.exports = {
         const idChannel= splittedArray[4];
         const idMessage =splittedArray[5];
         
-        const result=await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon);
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==undefined);
         if(result==undefined || result.length>0)
         {
             interaction.reply({
@@ -110,11 +110,17 @@ module.exports = {
         const dataAttuale= new Date();
         const dungeon = splittedArray[3];
 
-        const result=await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon);
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
+        
+        if(result==null || result.length==0)
+        {
+            await interaction.reply({content:"Questa caccia è già terminata.", ephemeral:true});
+            return;
+        }
 
         interaction.showModal(modals.modaleStopCaccia());
         const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,dungeon,guild.id,interaction);
-
+        
         const submitted = await interaction.awaitModalSubmit({
             time: 150000,
             filter: i => i.user.id === interaction.user.id,
