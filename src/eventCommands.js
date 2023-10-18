@@ -2,6 +2,8 @@ require('dotenv').config({path:"../.env"});
 const cacceOrganizzate = require('./firestore/cacceOrganizzate.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
+const memeService = require('./firestore/meme.js'); 
+
 
 const utils = require('./utils.js'); 
 const generics = require('./generics.js'); 
@@ -19,7 +21,11 @@ module.exports = {
         case "start-caccia": await this.startCaccia(interaction,guild,information); break;
         case "set-classe": await this.setClasse(interaction,guild,information); break;
         case "set-type-user": await this.setSuperuser(interaction,guild,information); break;
-        case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+process.env.VERSION+"__", ephemeral:true})
+        case "insert-meme": await this.insertMeme(interaction,guild,information); break;
+        case "insert-meme": await this.insertMeme(interaction,guild,information); break;
+        case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
+        case "get-random-meme": await interaction.reply({content:"Ecco! "+ await memeService.getRandomMeme(guild.id)}); break;
+        case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+process.env.VERSION+"__", ephemeral:true});break;
 
       }
       return;
@@ -111,7 +117,9 @@ module.exports = {
   },
   async setSuperuser(interaction,guild,information)
   {
-    if(!information.isAdmin)
+    const isOwner = interaction.guild.ownerId === interaction.user.id;
+
+    if(!information.isAdmin && !isOwner)
     {
       await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
       return;
@@ -120,21 +128,67 @@ module.exports = {
     const { options } = interaction;
     const ruolo = options.getRole('ruolo');
     const tipoRuolo = interaction.options.get('tipologia-ruolo').value;
+
     try
     {
-      const response=await ruoloTipoRuoloService.getRuoloTipoRuolo(guild.id, ruolo.name,tipoRuolo);
+      const response=await ruoloTipoRuoloService.getRuoloTipoRuolo(guild.id, ruolo,tipoRuolo);
         if(response.length>0)
         {
           await interaction.reply({content:"Ruolo "+ruolo.name+" già mappato con tipo ruolo "+tipoRuolo+".",ephemeral:true})
           return;
         }
-      await ruoloTipoRuoloService.insertRuoloTipoRuolo({role:ruolo.name,tipoRuolo:tipoRuolo,guild:guild})
+      await ruoloTipoRuoloService.insertRuoloTipoRuolo({role:ruolo,tipoRuolo:tipoRuolo,guild:guild})
       await interaction.reply({content:"Ho mappato "+ruolo.name+" e "+tipoRuolo+".",ephemeral:true})
     }
     catch(error)
     {
       await interaction.reply({content:"Qualcosa è andato storto",ephemeral:true})
       console.log(error)
+    }
+  },
+  async insertMeme(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+      return;
+    }
+
+    const { options } = interaction;
+    const meme = options.getString('meme');
+    try
+    {
+      await memeService.insertMeme({idGuild:guild.id, author:interaction.user.globalName,meme:meme})
+      await interaction.reply({
+        content:"Hai inserito correttamente: "+meme,
+        ephemeral:true
+      })
+    }
+    catch(error)
+    {
+      console.log("error")
+    }
+  },
+  async showAllMeme(interaction,guild,information)
+  {
+    const embeds = new Array();
+    const meme = await memeService.getAllMeme(guild.id)
+    for(let i=0; i<meme.length;i++)
+      embeds.push({
+        name:(i+1)+"- "+meme[i].meme,
+        value:"    ",})
+            
+    const result= await generics.creaEmbeded("Lista dei meme", "", interaction,embeds);
+    try
+    {
+      await interaction.reply({
+        content:"Ecco a te la lista dei meme del server!",
+        embeds:[result]
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
     }
   }
 }

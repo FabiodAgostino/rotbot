@@ -29,7 +29,7 @@ module.exports =
             embeds = new Array();
             embeds.push({
                 name:text,
-                value:"---------",
+                value:"    ",
             })
         }
         

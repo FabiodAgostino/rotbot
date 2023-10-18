@@ -2,7 +2,7 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate };
 
 
 function sondaggioData()
@@ -21,6 +21,33 @@ function sondaggioData()
       .setCustomId('mete')
       .setLabel("Quali sono le mete?")
       .setPlaceholder("-🍎 Mela \n-🍋 Limone \n\n Oppure...\n\n -Mela \n -Pera")
+      .setStyle(TextInputStyle.Paragraph);
+    
+    const firstActionRow = new ActionRowBuilder().addComponents(favoriteColorInput);
+    const secondActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
+
+
+    modal.addComponents(firstActionRow,secondActionRow);
+
+    return modal;
+}
+
+function sondaggioEventoDate()
+{
+    const modal = new ModalBuilder()
+    .setCustomId('sondaggioEventoDate')
+    .setTitle('Sondaggio Generico');
+
+    const favoriteColorInput = new TextInputBuilder()
+      .setCustomId('meta')
+      .setLabel("Meta?")
+      .setPlaceholder("Kur Nughul 2")
+      .setStyle(TextInputStyle.Short);
+
+    const hobbiesInput = new TextInputBuilder()
+      .setCustomId('date')
+      .setLabel("Quali sono le date?")
+      .setPlaceholder("-🍎 10/10/2023 \n-🍋 11/10/2023 \n\n Oppure...\n\n -10/10/2023 \n -11/10/2023")
       .setStyle(TextInputStyle.Paragraph);
     
     const firstActionRow = new ActionRowBuilder().addComponents(favoriteColorInput);
@@ -89,7 +116,7 @@ function modaleStopCaccia()
     
     const sangue = new TextInputBuilder()
       .setCustomId('sangue')
-      .setLabel("🩸 Fiale di sangue")
+      .setLabel("⚗️ Fiale di sangue")
       .setPlaceholder("Inserisci qui le fiale di sangue (tutte sommate).")
       .setRequired(false)
       .setStyle(TextInputStyle.Short);

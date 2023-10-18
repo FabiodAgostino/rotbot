@@ -18,6 +18,7 @@ module.exports = {
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
+        await this.buttonDividi(interaction, information, guild, client);
     },
     async buttonSondaggioSiNo(interaction,information)
     {
@@ -118,9 +119,35 @@ module.exports = {
             return;
         }
 
+        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
+        interaction.reply(
+        {
+            content:"Premi il tasto dividi quando vuoi cominciare la divisione!",
+            ephemeral:true,
+            components:[buttonDividi]
+        })
+
+        
+    },
+    async buttonDividi(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[1]!=="dividi") return;
+        if(!information.isUtente)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+            return;
+        }
+
+        const dungeon = splittedArray[2];
+        const dataAttuale = splittedArray[3];
+
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
+
         interaction.showModal(modals.modaleStopCaccia());
         const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,dungeon,guild.id,interaction);
-        
+
         const submitted = await interaction.awaitModalSubmit({
             time: 150000,
             filter: i => i.user.id === interaction.user.id,
@@ -138,12 +165,12 @@ module.exports = {
         const tempo = utils.differenceBetweenTwoTimeStamp(result[0].date);
 
         let embedFields = new Array();
-        embedFields.push({name:"Tempo: __"+tempo.hours+"__ hh __"+tempo.minutes+"__ minuti __"+tempo.seconds+"__ secondi.", value:"-------------"})
-        embedFields.push({name:"🪙  Monete: "+soldi, value:"-------------"})
-        embedFields.push({name:"❄️  Frammenti: "+frammenti, value:"-------------"})
-        embedFields.push({name:"⬆️  Fama: "+fama, value:"-------------"})
-        embedFields.push( {name:"🔮  Nuclei Formidabili: "+nucleiFormidabili, value:"-------------"})
-        embedFields.push( {name:"🩸  Sangue: "+sangue, value:"-------------"})
+        embedFields.push({name:"🕙 Tempo: __"+tempo.hours+"__ ora __"+tempo.minutes+"__ minuti __"+tempo.seconds+"__ secondi.", value:"    "})
+        embedFields.push({name:"🪙  Monete: "+soldi, value:"    "})
+        embedFields.push({name:"❄️  Frammenti: "+frammenti, value:"    "})
+        embedFields.push({name:"⬆️  Fama: "+fama, value:"     "})
+        embedFields.push( {name:"🔮  Nuclei: "+nucleiFormidabili, value:"    "})
+        embedFields.push( {name:"⚗️  Sangue: "+sangue, value:"     "})
 
         const newData = {
             dateFinish: dataAttuale,

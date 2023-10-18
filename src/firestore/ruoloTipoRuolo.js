@@ -9,7 +9,7 @@ async function getRuoloTipoRuolo(guildId,role=null,tipoRuolo=null)
         let que = query(collect, where("guildId","==",guildId));
 
         if(role!=null)
-            que = query(collect, where("guildId","==",guildId),where("role","==",role),where("tipoRuolo","==",tipoRuolo));
+            que = query(collect, where("guildId","==",guildId),where("idRole","==",role.id),where("tipoRuolo","==",tipoRuolo));
 
         var array = new Array();
         try {
@@ -30,11 +30,12 @@ async function insertRuoloTipoRuolo({role, tipoRuolo, guild})
 {
     const firebaseConnect = require('./firebaseConnect.js');
     const dataDaInserire = {
-        role: role,
+        role: role.name,
         tipoRuolo: tipoRuolo,
         date: new Date(),
         guild: guild.name,
-        guildId: guild.id
+        guildId: guild.id,
+        idRole:role.id
         };
         try {
         const collecttion = collection(firebaseConnect.db, "RuoloTipoRuolo");

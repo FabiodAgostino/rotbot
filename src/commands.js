@@ -5,7 +5,28 @@ const {REST, Routes, ApplicationCommandOptionType} = require("discord.js")
 const commands= [
     {
       name: 'sondaggio-data',
-      description: 'Crea un sondaggio per una data multiparametro'
+      description: 'Crea un sondaggio multi opzione per una data '
+    },
+    {
+      name: 'sondaggio-evento-date',
+      description: 'Crea un sondaggio singola opzione per molte date'
+    },
+    {
+      name: 'insert-meme',
+      description: 'Salva i tuoi meme per non dimenticarli ❤️',
+      required:true,
+      options:
+      [
+        {name:"meme", description:"Il testo del meme", requred:true, type:ApplicationCommandOptionType.String},
+      ]
+    },
+    {
+      name: 'show-all-meme',
+      description: 'Mostra tutti i meme'
+    },
+    {
+      name: 'get-random-meme',
+      description: 'Torna un meme casuale'
     },
     {
       name: 'sondaggio-si-no',

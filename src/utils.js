@@ -24,12 +24,14 @@ const classiTM =
 [
     {name:"Guerriero", type:"Prima linea"},
     {name:"Berserker", type:"Prima linea"},
-    {name:"Mago", type:"Maghi"},
+    {name:"Paladino", type:"Prima linea"},
+    {name:"Mago", type:"Mago"},
     {name:"Ranger", type:"Ranger"},
-    {name:"Bardo", type:"Bardi"},
+    {name:"Bardo", type:"Bardo"},
     {name:"Chierico", type:"Chierico"},
     {name:"Rogue", type:"Rogue"},
     {name:"Ladro", type:"Rogue"},
+    {name:"Druido", type:"Druido"},
 ]
 
 module.exports =

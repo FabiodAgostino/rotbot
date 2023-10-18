@@ -17,6 +17,7 @@ module.exports = {
       switch(interaction.commandName)
       {
         case "sondaggio-data": await this.sondaggioData(interaction,information); break;
+        case "sondaggio-evento-date": await this.sondaggoEventoDate(interaction,information); break;
         case "sondaggio-si-no": await this.sondaggioSiNo(interaction,information); break;
         case "sondaggio-caccia": await this.sondaggioCaccia(interaction,guild,information); break;
       }
@@ -67,12 +68,81 @@ module.exports = {
         {
           if(filteredEmojis[i]==undefined) filteredEmojis[i] = setEmoji.setEmoji(i);
           const text=(filteredEmojis[i]+" "+mete[i]).replace('undefined','');
-          embedFields.push({name:text,value:'---------' });
+          embedFields.push({name:text,value:'     ' });
         }
     
         const exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle("Evento il giorno: "+data)
+        .setDescription("@everyone")
+        .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
+        .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
+        .addFields(
+          embedFields
+        )
+        .setTimestamp()
+        .setFooter({ text: 'RotinielToolsDev' });
+    
+    
+        if (submitted) {
+            const message=await submitted.reply({
+              embeds:[exampleEmbed],
+              fetchReply:true
+            });
+            filteredEmojis.forEach(x=> message.react(x))
+        }
+    },
+    async sondaggoEventoDate(interaction, information)
+    {
+      if(!information.isUtente)
+      {
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        return;
+      }
+
+      interaction.showModal(modals.sondaggioEventoDate());
+
+      const submitted = await interaction.awaitModalSubmit({
+          time: 60000,
+          filter: i => i.user.id === interaction.user.id,
+        }).catch(error => {
+          console.error(error)
+          return null
+        })
+    
+        const fields = submitted.fields;
+        const data=fields.getTextInputValue("meta");
+        var mete=fields.getTextInputValue("date").replace('\n','').replace(emojiRegex).split('-').filter(x=> x!=='');
+    
+        const emojis=fields.getTextInputValue("date").match(emojiRegex);
+        var filteredEmojis= emojis == null ? new Array() : emojis;
+        if(filteredEmojis.length!==0)
+        {
+          if(filteredEmojis.length>mete.length || filteredEmojis.length<mete.length)
+          {
+            if(submitted)
+            {
+              await submitted.reply({
+                content:"Rispetta il formato descritto nella modale",
+                ephemeral:true
+              });
+              return;
+            }
+          }
+        }
+    
+    
+        let embedFields = [];
+        for(let i=0;i<mete.length;i++)
+        {
+          if(filteredEmojis[i]==undefined) filteredEmojis[i] = setEmoji.setEmoji(i);
+          const text=(filteredEmojis[i]+" "+mete[i]).replace('undefined','');
+          embedFields.push({name:text,value:'     ' });
+        }
+    
+        const exampleEmbed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle("Evento: "+data)
         .setDescription("@everyone")
         .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
         .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')

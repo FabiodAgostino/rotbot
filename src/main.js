@@ -1,6 +1,5 @@
 require('dotenv').config({path:"../.env"});
-const { Client, GatewayIntentBits,
-  Events,ComponentType, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits,Events } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -13,13 +12,8 @@ const client = new Client({
 const polls = require('./poll.js'); 
 const eventButtons = require('./eventButtons.js'); 
 const eventCommands = require('./eventCommands.js'); 
-const messageCommands = require('./eventMessages.js'); 
-
-
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
-
-const utils = require('./utils.js'); 
-const generics = require('./generics.js'); 
+const serverDiscordService = require('./firestore/serverDiscord.js'); 
 
 
 
@@ -39,11 +33,16 @@ client.on(Events.InteractionCreate,async (interaction) =>{4
   eventButtons.executeButtonsEvents(interaction,guild,client);
 })
 
-client.on(Events.MessageCreate,async (message) =>{
-  const GuildMessages =client.guilds.cache.filter(x=> message.guildId ==x.id).first();
-  const guild= {name:GuildMessages.name, id:GuildMessages.id};
-  
-  messageCommands.executeCommandsEvent(message,guild);
+client.on(Events.GuildCreate, async (guild) => {
+  const server =await serverDiscordService.getServer(guild.id);
+  if(server==undefined || server.length==0)
+  {
+    await serverDiscordService.insertServer({idGuild:guild.id, name:guild.name});
+    console.log(`Il bot è stato aggiunto al db. ${guild.name}`);
+  }
+  else
+    console.log(`Il bot è gia presente nel db. ${guild.name}`);
+
 });
 
 
