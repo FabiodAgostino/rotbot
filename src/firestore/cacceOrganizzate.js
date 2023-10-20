@@ -23,13 +23,14 @@ async function getCacceOrganizzateDocument(soloOggi,guildId) {
       const querySnapshot = await getDocs(que);
       querySnapshot.forEach((doc) => {
           const object = {
+              id:doc.data().id,
               author: doc.data().author,
               date: doc.data().date,
               destination: doc.data().destination,
               guild: { name: doc.data().guild, id: doc.data().guildId },
               subscribers: doc.data().subscribers,
               messageId:doc.data().messageId,
-              channelId:doc.data().channelId
+              channelId:doc.data().channelId,
           };
           array.push(object);
       });
@@ -41,22 +42,18 @@ async function getCacceOrganizzateDocument(soloOggi,guildId) {
 }
 
 
-async function getCacceTempoLootDocument(guildId,nomeDungeon) {
+async function getCacceTempoLootDocument(guildId,id) {
   const firebaseConnect = require('./firebaseConnect.js');
   const collectionRef = collection(firebaseConnect.db, "CacciaOrganizzataTempoLoot");
-
-
-  const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()-0.2);
-  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
-  let que = query(collectionRef, where("date", ">=", startOfDay), where("date", "<", endOfDay), where("guildId","==",guildId), where("destination","==",nomeDungeon));
+  const idN = parseInt(id)
+  let que = query(collectionRef, where("id","==",idN));
 
   try {
       const array = [];
       const querySnapshot = await getDocs(que);
       querySnapshot.forEach((doc) => {
           const object = {
+              id: doc.data().id,
               author: doc.data().author,
               date: doc.data().date,
               destination: doc.data().destination,
@@ -78,7 +75,9 @@ async function getCacceTempoLootDocument(guildId,nomeDungeon) {
 
 async function insertCacciaTempoLoot({author, destination, guild, messageId,channelId}) {
     const firebaseConnect = require('./firebaseConnect.js');
+    const id= utils.idRnd();
     const dataDaInserire = {
+        id: id,
         author: author,
         destination: destination,
         date: new Date(),
@@ -93,6 +92,7 @@ async function insertCacciaTempoLoot({author, destination, guild, messageId,chan
     } catch (error) {
         console.error("Error writing document: ", error);
     }
+    return id;
 }
 
 async function getUsersFromReaction(client, channelId, messageId, dungeonName, guildId,interaction) {

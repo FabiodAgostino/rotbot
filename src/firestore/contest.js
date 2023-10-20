@@ -1,16 +1,18 @@
 const { collection, query, where, getDocs,addDoc, getDoc,updateDoc} = require("firebase/firestore");
 
-async function insertImages({arrayLink, author, idGuild, nameGuild})
+async function insertImages({arrayLink, author, idGuild, nameGuild,idCaccia})
 {
     const firebaseConnect = require('./firebaseConnect.js');
     const dataDaInserire = {
+        id: crypto.randomUUID(),
         idGuild: idGuild,
         nameGuild:nameGuild,
         author: author,
         images: arrayLink,
         inAttesaDiValidazione:true,
         validazione:false,
-        date: new Date()
+        date: new Date(),
+        idCacciaOrganizzataTempoLoot:idCaccia,
         };
         try {
         const collecttion = collection(firebaseConnect.db, "ImmaginiContest");
@@ -32,6 +34,7 @@ async function getImages() {
         const querySnapshot = await getDocs(que);
         querySnapshot.forEach((doc) => {
             const object = {
+                id: doc.data().id,
                 author: doc.data().author,
                 date: doc.data().date,
                 destination: doc.data().destination,

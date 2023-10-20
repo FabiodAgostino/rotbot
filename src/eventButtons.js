@@ -92,8 +92,8 @@ module.exports = {
             })
             return;
         }
-        await cacceOrganizzateService.insertCacciaTempoLoot({author:author, destination:dungeon, guild:{name:guild.name, id:guild.id}, messageId:idMessage, channelId:idChannel});
-        const buttonStop=generics.creaButton(ButtonStyle.Danger,"Stop!","button-stop-"+author+"-"+dungeon+"-"+guild.name+"-"+guild.id);
+        const id=await cacceOrganizzateService.insertCacciaTempoLoot({author:author, destination:dungeon, guild:{name:guild.name, id:guild.id}, messageId:idMessage, channelId:idChannel});
+        const buttonStop=generics.creaButton(ButtonStyle.Danger,"Stop!","button-stop-"+id);
         interaction.reply(
         {
             content:"Premi il tasto stop quando hai terminato la caccia! "+ utils.getRandomEmojiFelici(),
@@ -112,9 +112,9 @@ module.exports = {
             return;
         }
         const dataAttuale= new Date();
-        const dungeon = splittedArray[3];
-
-        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
+        const id = splittedArray[2];
+        
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
         
         if(result==null || result.length==0)
         {
@@ -125,11 +125,11 @@ module.exports = {
               .addComponents(
                 new ButtonBuilder()
                   .setLabel('Dividi')
-                  .setCustomId("button-dividi"+"-"+dungeon+"-"+dataAttuale)
+                  .setCustomId("button-dividi"+"-"+id+"-"+dataAttuale)
                   .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
                   .setLabel("Carica immagine")
-                  .setCustomId("button-image"+"-"+dungeon+"-"+dataAttuale)
+                  .setCustomId("button-image"+"-"+id+"-"+dataAttuale)
                   .setStyle(ButtonStyle.Primary)
               );
 
@@ -152,7 +152,7 @@ module.exports = {
             return;
         }
 
-        const dungeon = splittedArray[2];
+        const id = splittedArray[2];
         const dataAttuale = splittedArray[3];
         interaction.showModal(modals.modaleImmagini());
         
@@ -189,12 +189,12 @@ module.exports = {
             arrayLink.push(img5)
 
         const author = submitted.user.globalName==undefined ? submitted.user.username : submitted.user.globalName;
-        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
+        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+id+"-"+dataAttuale);
         try
         {
             if (submitted) {
                 await submitted.deferReply({ ephemeral: true }); 
-                await contestService.insertImages({arrayLink:arrayLink,author:author,idGuild:guild.id, nameGuild:guild.name})
+                await contestService.insertImages({arrayLink:arrayLink,author:author,idGuild:guild.id, nameGuild:guild.name,idCaccia:id})
                 const message=await submitted.editReply({
                     content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
                     components:[buttonDividi],
@@ -217,13 +217,13 @@ module.exports = {
             return;
         }
 
-        const dungeon = splittedArray[2];
+        const id = splittedArray[2];
         const dataAttuale = splittedArray[3];
 
-        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
 
         interaction.showModal(modals.modaleStopCaccia());
-        const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,dungeon,guild.id,interaction);
+        const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,result[0].destination,guild.id,interaction);
 
         const submitted = await interaction.awaitModalSubmit({
             time: 150000,
@@ -266,7 +266,7 @@ module.exports = {
             sangue: sangue,
             tempo:tempo}
 
-        const embeds = generics.creaEmbeded("Resoconto caccia a "+dungeon,"",interaction,embedFields);
+        const embeds = generics.creaEmbeded("Resoconto caccia a "+result[0].destination,"",interaction,embedFields);
         try
         {
             if (submitted) {

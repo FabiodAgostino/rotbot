@@ -3,13 +3,10 @@ const cacceOrganizzate = require('./firestore/cacceOrganizzate.js');
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
 const contestService = require('./firestore/contest.js'); 
-
 const memeService = require('./firestore/meme.js'); 
-
-
 const utils = require('./utils.js'); 
 const generics = require('./generics.js'); 
-const { ButtonStyle } = require('discord.js');
+const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder } = require('discord.js');
 
 module.exports = {
     async executeCommandsEvent(interaction, guild)
@@ -282,22 +279,61 @@ module.exports = {
       
 
       let images=await contestService.getImages();
-      console.log(images.map(x=> x.nameGuild))
+      const immagini = images.filter((x, index, self) => {
+        return index === self.findIndex((y) => y.nameGuild === x.nameGuild);
+      });
 
       if(images==undefined || images.length==0)
       {
         interaction.editReply({
-          content:"Non ci sono immagini da validare!"+ utils.getRandomEmojiRisposta(),
+          content:"Non ci sono immagini da validare! "+ utils.getRandomEmojiRisposta(),
           ephemeral:true
         });
         return;
       }
-
       const reply=await interaction.editReply({
         content: 'Scegli un server! '+ utils.getRandomEmojiFelici(),
-        components: [generics.creaLookupSenzaEmoji({list:images.map(x=> x.nameGuild),id:'guildsimmagini',placeholder:'Servers'})],
+        components: [generics.creaLookupSenzaEmoji({list:immagini,id:'prova',placeholder:'Servers'})],
         ephemeral: true
       });
+
+      const collector = reply.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect, 
+      });
+
+      collector.on("collect", async (collected) => {
+        var serverSceltoValue = collected.values[0];
+
+        const serverName = images.filter(x=> x.id==serverSceltoValue)[0].nameGuild;
+        const servers = images.filter(x=> x.nameGuild==serverName);
+        
+        interaction.deleteReply();
+        var text="Queste sono le immagini da validare del server "+servers[0].guildName+"! "+await utils.getRandomEmojiFelici();
+        if(servers.length>1)
+          text="Ecco a te le immagini da validare. **Ci sono ancora "+(servers.length-1)+" cacce da validare del server "+servers[0].nameGuild+"!** "+utils.getRandomEmojiFelici();
+        immagini[0].images.forEach(element => {
+          text+="\n "+element;
+        });
+
+        const buttons = new ActionRowBuilder()
+              .addComponents(
+                new ButtonBuilder()
+                  .setLabel('Convalida')
+                  .setCustomId("button-valida"+"-"+immagini[0].id)
+                  .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                  .setLabel("Rigetta")
+                  .setCustomId("button-rifiutavalidazione"+"-"+immagini[0].id)
+                  .setStyle(ButtonStyle.Danger)
+              );
+
+        const message= await interaction.followUp({
+          content:text,
+          components:[buttons],
+          fetchReply:true
+        });
+      });
+
   },
 }
 

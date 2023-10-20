@@ -15,6 +15,8 @@ const eventCommands = require('./eventCommands.js');
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
 const serverDiscordService = require('./firestore/serverDiscord.js'); 
 const commands = require('./commands.js'); 
+const utils = require('./utils.js'); 
+
 
 
 
@@ -28,8 +30,7 @@ client.on('ready', async () => {
 client.on(Events.InteractionCreate,async (interaction) =>{
   const guildName =client.guilds.cache.filter(x=> interaction.guildId ==x.id).first().name;
   const guild= {name:guildName, id:interaction.guildId};
-  console.log("Logger: guild.name:"+guild.name+" | guild.id:"+guild.id+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName);
-  await commands.setCommands(guild.id);
+  console.log("Logger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date()));
 
   eventCommands.executeCommandsEvent(interaction,guild);
   polls.executePollsEvents(interaction,guild);

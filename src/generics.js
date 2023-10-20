@@ -23,7 +23,6 @@ module.exports =
     },
     creaLookupSenzaEmoji({list, id, placeholder})
     {
-        console.log(id)
         const select = new StringSelectMenuBuilder()
 			.setCustomId(id)
 			.setPlaceholder(placeholder)
@@ -32,8 +31,8 @@ module.exports =
 			.addOptions(
 				list.map((value)=>
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(value)
-                        .setValue(value)
+                        .setLabel(value.nameGuild)
+                        .setValue(value.id)
                 )
 			);
 		const row = new ActionRowBuilder().addComponents(select);

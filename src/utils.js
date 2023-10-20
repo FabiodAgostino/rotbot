@@ -54,11 +54,19 @@ module.exports =
         var mese = data.getMonth() + 1;
         var anno = data.getFullYear();
         return giorno + '/' + mese + '/' + anno;
-    }
-    ,
+    },
+    idRnd()
+    {
+        const value = new Uint32Array(1);
+        return crypto.getRandomValues(value)[0];
+    },
     convertDateToDateNormal(date)
     {
         return date.getDate() + '/' + (date.getMonth()+1) + '/' + date.getFullYear();
+    },
+    getHours(date)
+    {
+        return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
     },
     differenceBetweenTwoTimeStamp(date)
     {
