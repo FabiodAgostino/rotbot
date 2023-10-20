@@ -14,6 +14,8 @@ const eventButtons = require('./eventButtons.js');
 const eventCommands = require('./eventCommands.js'); 
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
 const serverDiscordService = require('./firestore/serverDiscord.js'); 
+const commands = require('./commands.js'); 
+
 
 
 
@@ -23,10 +25,10 @@ client.on('ready', async () => {
   await fireBaseConnect.connectFirebase();
 });
 
-client.on(Events.InteractionCreate,async (interaction) =>{4
+client.on(Events.InteractionCreate,async (interaction) =>{
   const guildName =client.guilds.cache.filter(x=> interaction.guildId ==x.id).first().name;
   const guild= {name:guildName, id:interaction.guildId};
-
+  console.log("Logger: guild.name: "+guild.name+" guild.id: "+guild.id);
 
   eventCommands.executeCommandsEvent(interaction,guild);
   polls.executePollsEvents(interaction,guild);
@@ -35,6 +37,8 @@ client.on(Events.InteractionCreate,async (interaction) =>{4
 
 client.on(Events.GuildCreate, async (guild) => {
   const server =await serverDiscordService.getServer(guild.id);
+  await commands.setCommands(guild.id);
+
   if(server==undefined || server.length==0)
   {
     await serverDiscordService.insertServer({idGuild:guild.id, name:guild.name});

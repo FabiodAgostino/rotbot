@@ -34,6 +34,13 @@ const classiTM =
     {name:"Druido", type:"Druido"},
 ]
 
+const emojiSorridenti = [
+    "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🥰", "😋", "😎", "😏", "😌", "😛", "😜"
+  ];
+const emojiFelici = [
+    "😀", "😃", "😄", "😁", "😆","😊", "😇", "🥰",
+]
+
 module.exports =
 {
     dungeons,
@@ -76,6 +83,15 @@ module.exports =
         const indiceCasuale = Math.floor(Math.random() * randomEmoji.length);
         return randomEmoji[indiceCasuale];
       },
+    getRandomEmojiFelici() {
+    const indiceCasuale = Math.floor(Math.random() * emojiFelici.length);
+    return emojiFelici[indiceCasuale];
+    },
+    getRandomEmojiRisposta()
+    {
+        const indiceCasuale = Math.floor(Math.random() * emojiSorridenti.length);
+        return emojiSorridenti[indiceCasuale];
+    },
     async isUtenteOrAdmin(rolesGuild, interaction)
     {
         const rolesUsers=interaction.member.roles.cache.map(x=> x.name);

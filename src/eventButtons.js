@@ -27,12 +27,12 @@ module.exports = {
         if(splittedArray[0]!=="poll") return;
         if(!information.isUtente)
         {
-            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
 
         if(votedMembers.has(interaction.user.id+"-"+interaction.message.id))
-            return interaction.reply({content:"Hai già votato", ephemeral:true});
+            return interaction.reply({content:"Hai già votato "+ utils.getRandomEmojiFelici(), ephemeral:true});
 
         votedMembers.add(interaction.user.id+"-"+interaction.message.id);
         const pollEmbed = interaction.message.embeds[0];
@@ -71,7 +71,7 @@ module.exports = {
         if(splittedArray[1]!=="start") return;
         if(!information.isUtente)
         {
-            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
 
@@ -84,7 +84,7 @@ module.exports = {
         if(result==undefined || result.length>0)
         {
             interaction.reply({
-                content:"Questa caccia è già stata startata.",
+                content:"Questa caccia è già stata startata  "+ utils.getRandomEmojiFelici(),
                 ephemeral:true
             })
             return;
@@ -93,7 +93,7 @@ module.exports = {
         const buttonStop=generics.creaButton(ButtonStyle.Danger,"Stop!","button-stop-"+author+"-"+dungeon+"-"+guild.name+"-"+guild.id);
         interaction.reply(
         {
-            content:"Premi il tasto stop quando hai terminato la caccia!",
+            content:"Premi il tasto stop quando hai terminato la caccia! "+ utils.getRandomEmojiFelici(),
             ephemeral:true,
             components:[buttonStop]
         })
@@ -105,7 +105,7 @@ module.exports = {
         if(splittedArray[1]!=="stop") return;
         if(!information.isUtente)
         {
-            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
         const dataAttuale= new Date();
@@ -115,14 +115,14 @@ module.exports = {
         
         if(result==null || result.length==0)
         {
-            await interaction.reply({content:"Questa caccia è già terminata.", ephemeral:true});
+            await interaction.reply({content:"Questa caccia è già terminata. "+ utils.getRandomEmojiFelici(), ephemeral:true});
             return;
         }
 
         const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
         interaction.reply(
         {
-            content:"Premi il tasto dividi quando vuoi cominciare la divisione!",
+            content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
             ephemeral:true,
             components:[buttonDividi]
         })
@@ -136,7 +136,7 @@ module.exports = {
         if(splittedArray[1]!=="dividi") return;
         if(!information.isUtente)
         {
-            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
 

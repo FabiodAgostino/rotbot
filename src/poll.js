@@ -27,7 +27,7 @@ module.exports = {
     {
       if(!information.isUtente)
       {
-        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
         return;
       }
 
@@ -40,6 +40,11 @@ module.exports = {
           console.error(error)
           return null
         })
+      if(submitted==null)
+      {
+        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        return;
+      }
     
         const fields = submitted.fields;
         const data=fields.getTextInputValue("data");
@@ -96,7 +101,7 @@ module.exports = {
     {
       if(!information.isUtente)
       {
-        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
         return;
       }
 
@@ -109,6 +114,11 @@ module.exports = {
           console.error(error)
           return null
         })
+      if(submitted==null)
+      {
+        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        return;
+      }
     
         const fields = submitted.fields;
         const data=fields.getTextInputValue("meta");
@@ -166,11 +176,11 @@ module.exports = {
     {
       if(!information.isUtente)
       {
-        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
         return;
       }
-      interaction.showModal(modals.sondaggioSiNo());
 
+      await interaction.showModal(modals.sondaggioSiNo());
       const submitted = await interaction.awaitModalSubmit({
         time: 60000,
         filter: i => i.user.id === interaction.user.id,
@@ -178,6 +188,11 @@ module.exports = {
         console.error(error)
         return null
       })
+      if(submitted==null)
+      {
+        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        return;
+      }
 
       const pollQuestion = submitted.fields.getTextInputValue("question");
       const exampleEmbed = new EmbedBuilder()
@@ -213,14 +228,14 @@ module.exports = {
     {
       if(!information.isUtente)
       {
-        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+        await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
         return;
       }
 
       var dungeons = new Array();
       dungeons=await dungeonsFirebase.getDungeonDocuments();
       const reply=await interaction.reply({
-        content: 'Cominciamo! Scegli il dungeon in cui andrete a caccia.',
+        content: 'Cominciamo! Scegli il dungeon in cui andrete a caccia! '+ utils.getRandomEmojiFelici(),
         components: [generics.creaLookup(dungeons,'dungeonsId','Scegli un dungeon')],
         ephemeral: true
       });

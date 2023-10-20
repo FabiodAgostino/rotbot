@@ -17,6 +17,25 @@ async function insertMeme({idGuild, author, meme})
         console.error("Error writing document: ", error);
     }
 }
+async function insertTicket({idGuild, author, type, text})
+{
+    const firebaseConnect = require('./firebaseConnect.js');
+    const dataDaInserire = {
+        idGuild: idGuild,
+        user: author,
+        date: new Date(),
+        messaggio: text,
+        tipologia:type,
+        id: crypto.randomUUID(),
+        isRotbot: true
+        };
+        try {
+        const collecttion = collection(firebaseConnect.db, "Ticket");
+        const docRef = await addDoc(collecttion, dataDaInserire);
+    } catch (error) {
+        console.error("Error writing document: ", error);
+    }
+}
 
 async function getAllMeme(guildId) {
     const firebaseConnect = require('./firebaseConnect.js');
@@ -52,5 +71,6 @@ async function getRandomMeme(guildId)
   module.exports = {
     getAllMeme,
     insertMeme,
-    getRandomMeme
+    getRandomMeme,
+    insertTicket
     };

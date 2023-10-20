@@ -21,6 +21,34 @@ const commands= [
       ]
     },
     {
+      name: 'insert-segnalazione',
+      description: 'Insersci un ticket di assistenza oppure consigliaci qualche nuova feature!',
+      voiceChannel: false,
+      options: [
+      {
+          name: 'tipologa',
+          description: 'Seleziona una tipologia di ticket',
+          type: ApplicationCommandOptionType.String,
+          required: true,
+          choices: [
+              {
+                  name: "Malfunzionamento",
+                  value: "Malfunzionamento"
+              },
+              {
+                  name: "Correzione dati Tool",
+                  value: "Correzione dati tool",
+              },
+              {
+                name: "Consigli",
+                value: "Consigli",
+            }
+          ]
+      },
+      {name:"testo", description:"Il testo del ticket", requred:true, type:ApplicationCommandOptionType.String},
+      ],
+    },
+    {
       name: 'show-all-meme',
       description: 'Mostra tutti i meme'
     },
@@ -100,19 +128,22 @@ const commands= [
 
   const rest = new REST({version:'10'}).setToken(process.env.TOKEN);
 
-
-  (async () =>{
+  async function setCommands(guildId)
+  {
     try{
-      console.log("Inizio registrazione commands");
+      console.log("Inizio registrazione commands per guildId: "+guildId);
       await rest.put(
-        Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),{body: commands}
+        Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),{body: commands}
       )
       console.log("Slash commands registrati");
     }catch(error)
     {
       console.log("Errore:"+ error);
     }
-  })();
+  }
+    
+
+module.exports = {setCommands}
 
 
 

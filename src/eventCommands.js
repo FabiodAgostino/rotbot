@@ -23,8 +23,9 @@ module.exports = {
         case "set-type-user": await this.setSuperuser(interaction,guild,information); break;
         case "insert-meme": await this.insertMeme(interaction,guild,information); break;
         case "insert-meme": await this.insertMeme(interaction,guild,information); break;
+        case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
-        case "get-random-meme": await interaction.reply({content:"Ecco! "+ await memeService.getRandomMeme(guild.id)}); break;
+        case "get-random-meme": await interaction.reply({content:"Ecco! "+ await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+process.env.VERSION+"__", ephemeral:true});break;
 
       }
@@ -34,36 +35,46 @@ module.exports = {
   {
     if(!information.isUtente)
     {
-      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
       return;
     }
-      
+      await interaction.deferReply({ ephemeral: true }); 
       const nomeDungeon= utils.dungeons.filter(x=> x.value==interaction.options.get('scegli-dungeon').value)[0].name;
-      const cacceAttive=await cacceOrganizzate.getCacceOrganizzateDocument(true,interaction.guildId);
+      let cacceAttive=await cacceOrganizzate.getCacceOrganizzateDocument(true,interaction.guildId);
       if(cacceAttive==undefined || cacceAttive.length==0)
       {
-        interaction.reply({
-          content:"Non ci sono cacce programmate per questa sera",
+        interaction.editReply({
+          content:"Non ci sono cacce programmate per questa sera, perché non ne organizzi una?"+ utils.getRandomEmojiRisposta(),
           ephemeral:true
         });
         return;
       }
-      const cacciaAttiva = utils.trovaDataPiùRecente(cacceAttive.filter(x=> x.destination===nomeDungeon));
+      cacceAttive = cacceAttive.filter(x=> x.destination===nomeDungeon);
+      console.log("log: cacciaAttiva: ",cacceAttive.length)
+
+      let cacciaAttiva;
+      if(cacceAttive.length>0)
+        cacciaAttiva = utils.trovaDataPiùRecente(cacceAttive);
 
       if(cacciaAttiva==undefined || cacciaAttiva.length==0)
       {
-        interaction.reply({
-          content:"Non ci sono cacce programmate per questa sera a "+nomeDungeon,
+        interaction.editReply({
+          content:"Non ci sono cacce programmate per questa sera a "+nomeDungeon+", organizzane una tu! "+ utils.getRandomEmojiFelici(),
           ephemeral:true
         });
         return;
       }
       else
       {
-        const name = interaction.user.globalName.replace("-","");
+        let name;
+        if(interaction.user.globalName)
+          name = interaction.user.globalName.replace("-","");
+        else
+          name = interaction.user.username;
+        
         const buttonStart=generics.creaButton(ButtonStyle.Primary,"Start!","button-start-"+name+"-"+nomeDungeon+"-"+cacciaAttiva.channelId+"-"+cacciaAttiva.messageId);
-        interaction.reply({
-          content:"Diamo il via alla tua caccia a "+nomeDungeon+", premi start quando sei pronto.",
+        interaction.editReply({
+          content:"Diamo il via alla tua caccia a "+nomeDungeon+", premi start quando sei pronto. "+ utils.getRandomEmojiFelici(),
           components:[buttonStart],
           ephemeral:true
         })
@@ -73,10 +84,10 @@ module.exports = {
   {
     if(!information.isAdmin)
     {
-      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
       return;
     }
-
+    await interaction.deferReply({ ephemeral: true }); 
     const { options } = interaction;
     const ruoloOption = options.getRole('ruolo').name;
     const classeOption = options.getString('classe');
@@ -85,13 +96,13 @@ module.exports = {
       classe=utils.classiTM.filter(x=> x.name.toLowerCase()==classeOption.toLowerCase());
     else
     {
-      await interaction.reply({content:"Non hai valorizzato correttamente il campo classe.",ephemeral:true});
+      await interaction.editReply({content:"Non hai valorizzato correttamente il campo classe. "+ utils.getRandomEmojiFelici(),ephemeral:true});
       return;
     }
 
     if(classe==undefined || classe.length==0)
     {
-      await interaction.reply({content:"Non esiste una classe simile su TM",ephemeral:true});
+      await interaction.editReply({content:"Non esiste una classe simile su TM "+ utils.getRandomEmojiFelici(),ephemeral:true});
       return;
     }
     else
@@ -101,15 +112,15 @@ module.exports = {
         const response=await ruoloTipoClasseService.getRuoloTipoClasse(guild.id, ruoloOption,classeOption);
         if(response.length>0)
         {
-          await interaction.reply({content:"Ruolo "+classe[0].type+" già mappato con classe "+response[0].tipoClasse+".",ephemeral:true})
+          await interaction.editReply({content:"Ruolo "+classe[0].type+" già mappato con classe "+response[0].tipoClasse+".",ephemeral:true})
           return;
         }
         await ruoloTipoClasseService.insertRuoloTipoclasse({role:ruoloOption,tipoClasse:classe[0].type,guild:guild})
-        await interaction.reply({content:"Ho mappato "+classe[0].type+" e "+ruoloOption+".",ephemeral:true})
+        await interaction.editReply({content:"Ho mappato "+classe[0].type+" e "+ruoloOption+".",ephemeral:true})
       }
       catch(error)
       {
-        await interaction.reply({content:"Qualcosa è andato storto",ephemeral:true})
+        await interaction.editReply({content:"Qualcosa è andato storto",ephemeral:true})
         console.log(error)
       }
     }
@@ -121,10 +132,10 @@ module.exports = {
 
     if(!information.isAdmin && !isOwner)
     {
-      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
       return;
     }
-
+    await interaction.deferReply({ ephemeral: true }); 
     const { options } = interaction;
     const ruolo = options.getRole('ruolo');
     const tipoRuolo = interaction.options.get('tipologia-ruolo').value;
@@ -134,15 +145,15 @@ module.exports = {
       const response=await ruoloTipoRuoloService.getRuoloTipoRuolo(guild.id, ruolo,tipoRuolo);
         if(response.length>0)
         {
-          await interaction.reply({content:"Ruolo "+ruolo.name+" già mappato con tipo ruolo "+tipoRuolo+".",ephemeral:true})
+          await interaction.editReply({content:"Ruolo "+ruolo.name+" già mappato con tipo ruolo "+tipoRuolo+".",ephemeral:true})
           return;
         }
       await ruoloTipoRuoloService.insertRuoloTipoRuolo({role:ruolo,tipoRuolo:tipoRuolo,guild:guild})
-      await interaction.reply({content:"Ho mappato "+ruolo.name+" e "+tipoRuolo+".",ephemeral:true})
+      await interaction.editReply({content:"Ho mappato "+ruolo.name+" e "+tipoRuolo+".",ephemeral:true})
     }
     catch(error)
     {
-      await interaction.reply({content:"Qualcosa è andato storto",ephemeral:true})
+      await interaction.editReply({content:"Qualcosa è andato storto",ephemeral:true})
       console.log(error)
     }
   },
@@ -150,17 +161,41 @@ module.exports = {
   {
     if(!information.isUtente)
     {
-      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione", ephemeral:true});
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
       return;
     }
-
+    await interaction.deferReply({ ephemeral: true });   
     const { options } = interaction;
     const meme = options.getString('meme');
     try
     {
       await memeService.insertMeme({idGuild:guild.id, author:interaction.user.globalName,meme:meme})
-      await interaction.reply({
-        content:"Hai inserito correttamente: "+meme,
+      await interaction.editReply({
+        content:"Hai inserito correttamente: "+meme+" "+ utils.getRandomEmojiRisposta(),
+        ephemeral:true
+      })
+    }
+    catch(error)
+    {
+      console.log("error")
+    }
+  },
+  async insertSegnalazione(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    await interaction.deferReply({ ephemeral: true });   
+    const choice=interaction.options.get('tipologa').value
+    const { options } = interaction;
+    const testo = options.getString('testo');
+    try
+    {
+      await memeService.insertTicket({idGuild:guild.id, author:interaction.user.globalName,type: choice, text:testo})
+      await interaction.editReply({
+        content:"Il tuo ticket di tipo "+choice+" è stato inserito correttamente! "+ utils.getRandomEmojiFelici(),
         ephemeral:true
       })
     }
@@ -172,17 +207,18 @@ module.exports = {
   async showAllMeme(interaction,guild,information)
   {
     const embeds = new Array();
-    const meme = await memeService.getAllMeme(guild.id)
+    const meme = (await memeService.getAllMeme(guild.id)).filter(x=> !x.meme.includes("http"))
     for(let i=0; i<meme.length;i++)
       embeds.push({
         name:(i+1)+"- "+meme[i].meme,
         value:"    ",})
-            
+
+    await interaction.deferReply({ ephemeral: true });   
     const result= await generics.creaEmbeded("Lista dei meme", "", interaction,embeds);
     try
     {
-      await interaction.reply({
-        content:"Ecco a te la lista dei meme del server!",
+      await interaction.editReply({
+        content:"Ecco a te la lista dei meme del server! 😂",
         embeds:[result]
       })
     }
