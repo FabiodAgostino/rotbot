@@ -28,7 +28,8 @@ client.on('ready', async () => {
 client.on(Events.InteractionCreate,async (interaction) =>{
   const guildName =client.guilds.cache.filter(x=> interaction.guildId ==x.id).first().name;
   const guild= {name:guildName, id:interaction.guildId};
-  console.log("Logger: guild.name: "+guild.name+" guild.id: "+guild.id);
+  console.log("Logger: guild.name:"+guild.name+" | guild.id:"+guild.id+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName);
+  await commands.setCommands(guild.id);
 
   eventCommands.executeCommandsEvent(interaction,guild);
   polls.executePollsEvents(interaction,guild);
@@ -38,7 +39,6 @@ client.on(Events.InteractionCreate,async (interaction) =>{
 client.on(Events.GuildCreate, async (guild) => {
   const server =await serverDiscordService.getServer(guild.id);
   await commands.setCommands(guild.id);
-
   if(server==undefined || server.length==0)
   {
     await serverDiscordService.insertServer({idGuild:guild.id, name:guild.name});

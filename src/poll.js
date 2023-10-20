@@ -171,7 +171,6 @@ module.exports = {
             filteredEmojis.forEach(x=> message.react(x))
         }
     },
-
     async sondaggioSiNo(interaction,information)
     {
       if(!information.isUtente)
@@ -223,7 +222,6 @@ module.exports = {
       if(submitted)
         submitted.editReply({components:[pollButtons]});
     },
-
     async sondaggioCaccia(interaction,guild,information)
     {
       if(!information.isUtente)

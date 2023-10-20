@@ -1,6 +1,8 @@
-const {ButtonInteraction, ButtonStyle} = require("discord.js")
+const {ButtonInteraction, ButtonStyle,ActionRowBuilder, ButtonBuilder} = require("discord.js")
 const cacceOrganizzateService = require("./firestore/cacceOrganizzate.js")
 const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
+const contestService = require("./firestore/contest.js")
+
 
 const generics = require('./generics.js'); 
 const utils = require('./utils.js'); 
@@ -18,6 +20,7 @@ module.exports = {
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
+        await this.buttonCaricaImmagine(interaction,information,guild,client);
         await this.buttonDividi(interaction, information, guild, client);
     },
     async buttonSondaggioSiNo(interaction,information)
@@ -118,16 +121,90 @@ module.exports = {
             await interaction.reply({content:"Questa caccia è già terminata. "+ utils.getRandomEmojiFelici(), ephemeral:true});
             return;
         }
+        const buttons = new ActionRowBuilder()
+              .addComponents(
+                new ButtonBuilder()
+                  .setLabel('Dividi')
+                  .setCustomId("button-dividi"+"-"+dungeon+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                  .setLabel("Carica immagine")
+                  .setCustomId("button-image"+"-"+dungeon+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Primary)
+              );
 
-        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
         interaction.reply(
         {
-            content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
+            content:"Premi il tasto **'Dividi'** se vuoi procedere subito alla divisione, oppure il bottone **'Carica immagine'** se vuoi inserire un'immagine da far validare per il contest.  "+ utils.getRandomEmojiFelici(),
             ephemeral:true,
-            components:[buttonDividi]
+            components:[buttons]
         })
 
+    },
+    async buttonCaricaImmagine(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[1]!=="image") return;
+        if(!information.isUtente)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+            return;
+        }
+
+        const dungeon = splittedArray[2];
+        const dataAttuale = splittedArray[3];
+        interaction.showModal(modals.modaleImmagini());
         
+        const submitted = await interaction.awaitModalSubmit({
+            time: 150000,
+            filter: i => i.user.id === interaction.user.id,
+          }).catch(error => {
+            console.error(error)
+            return null
+          })
+        if(submitted==null)
+        {
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
+
+        const fields = submitted.fields;
+        const img1=fields.getTextInputValue("link1");
+        const img2=fields.getTextInputValue("link2");
+        const img3=fields.getTextInputValue("link3");
+        const img4=fields.getTextInputValue("link4");
+        const img5=fields.getTextInputValue("link5");
+        let arrayLink = [];
+
+        if(img1!=null && img1!='')
+            arrayLink.push(img1)
+        if(img2!=null && img2!='')
+            arrayLink.push(img2)
+        if(img3!=null && img3!='')
+            arrayLink.push(img3)
+        if(img4!=null && img4!='')
+            arrayLink.push(img4)
+        if(img5!=null && img5!='')
+            arrayLink.push(img5)
+
+        const author = submitted.user.globalName==undefined ? submitted.user.username : submitted.user.globalName;
+        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
+        try
+        {
+            if (submitted) {
+                await submitted.deferReply({ ephemeral: true }); 
+                await contestService.insertImages({arrayLink:arrayLink,author:author,idGuild:guild.id, nameGuild:guild.name})
+                const message=await submitted.editReply({
+                    content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
+                    components:[buttonDividi],
+                });
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
     },
     async buttonDividi(interaction,information,guild,client)
     {
@@ -155,6 +232,12 @@ module.exports = {
             console.error(error)
             return null
           })
+
+        if(submitted==null)
+        {
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
 
         const fields = submitted.fields;
         const soldi=fields.getTextInputValue("soldi");

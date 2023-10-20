@@ -18,7 +18,7 @@ async function getRuoloTipoRuolo(guildId,role=null,tipoRuolo=null)
             const querySnapshot = await getDocs(que);
             
             querySnapshot.forEach((doc) => {
-                array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guild.id});
+                array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guildId});
         });
         } catch (error) {
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
@@ -44,6 +44,46 @@ async function insertRuoloTipoRuolo({role, tipoRuolo, guild})
         console.error("Error writing document: ", error);
     }
 }
+
+async function insertRuoloValidatore(user)
+{
+    const firebaseConnect = require('./firebaseConnect.js');
+    const dataDaInserire = {
+        username:user?.globalName==undefined ? user?.username : user?.globalName,
+        idUser:user.id,
+        isValidatore:true,
+        date: new Date(),
+        };
+        try {
+        const collecttion = collection(firebaseConnect.db, "RuoloTipoRuolo");
+        const docRef = await addDoc(collecttion, dataDaInserire);
+    } catch (error) {
+        console.error("Error writing document: ", error);
+    }
+}
+
+async function getValidatori() 
+    {
+        const firebaseConnect = require('./firebaseConnect.js');
+        const collect = collection(firebaseConnect.db, "RuoloTipoRuolo");
+
+        let que = query(collect, where("isValidatore","==",true));
+
+        var array = new Array();
+        try {
+            var array = new Array();
+
+            const querySnapshot = await getDocs(que);
+            
+            querySnapshot.forEach((doc) => {
+                array.push({username:doc.data().username,idUser:doc.data().idUser, isValidatore:doc.data().isValidatore});
+        });
+        } catch (error) {
+            console.error("Errore durante il recupero dei documenti da Firestore:", error);
+        }
+        console.log(array);
+        return array;
+    }
 
 async function getRuoliUtente(guildId,ruoloUtente) 
 {
@@ -89,5 +129,7 @@ module.exports = {
     getRuoloTipoRuolo,
     insertRuoloTipoRuolo,
     getRuoliUtente,
-    getGuardInformation
+    getGuardInformation,
+    insertRuoloValidatore,
+    getValidatori
     };

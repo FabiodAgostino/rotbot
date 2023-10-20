@@ -2,6 +2,8 @@ require('dotenv').config({path:"../.env"});
 const cacceOrganizzate = require('./firestore/cacceOrganizzate.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
+const contestService = require('./firestore/contest.js'); 
+
 const memeService = require('./firestore/meme.js'); 
 
 
@@ -21,7 +23,8 @@ module.exports = {
         case "start-caccia": await this.startCaccia(interaction,guild,information); break;
         case "set-classe": await this.setClasse(interaction,guild,information); break;
         case "set-type-user": await this.setSuperuser(interaction,guild,information); break;
-        case "insert-meme": await this.insertMeme(interaction,guild,information); break;
+        case "set-validatore": await this.setValidatori(interaction,guild,information); break;
+        case "valida-immagini": await this.validaImmagine(interaction,guild,information); break;
         case "insert-meme": await this.insertMeme(interaction,guild,information); break;
         case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
@@ -129,7 +132,6 @@ module.exports = {
   async setSuperuser(interaction,guild,information)
   {
     const isOwner = interaction.guild.ownerId === interaction.user.id;
-
     if(!information.isAdmin && !isOwner)
     {
       await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
@@ -150,6 +152,42 @@ module.exports = {
         }
       await ruoloTipoRuoloService.insertRuoloTipoRuolo({role:ruolo,tipoRuolo:tipoRuolo,guild:guild})
       await interaction.editReply({content:"Ho mappato "+ruolo.name+" e "+tipoRuolo+".",ephemeral:true})
+    }
+    catch(error)
+    {
+      await interaction.editReply({content:"Qualcosa è andato storto",ephemeral:true})
+      console.log(error)
+    }
+  },
+  async setValidatori(interaction,guild,information)
+  {
+    const isOwner = interaction.guild.ownerId === interaction.user.id;
+    const isTheMiracleServer = guild.id===process.env.GUILD_ID_TM;
+    if(!isTheMiracleServer)
+    {
+      await interaction.reply({content:"Non sei su TMZ! 😡", ephemeral:true});
+      return;
+    }
+    if(!information.isAdmin && !isOwner)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    
+
+    await interaction.deferReply({ ephemeral: true }); 
+    const { options } = interaction;
+    const user = options.getUser('validatore');
+    try
+    {
+      const response=await ruoloTipoRuoloService.getValidatori();
+        if(response.filter(x=> x.idUser==user.id).length>0)
+        {
+          await interaction.editReply({content:"L'utente "+user.username+" è già mappato come validaore.",ephemeral:true})
+          return;
+        }
+      await ruoloTipoRuoloService.insertRuoloValidatore(user)
+      await interaction.editReply({content:"Ho inserito "+user.username+" come validatore.",ephemeral:true})
     }
     catch(error)
     {
@@ -226,6 +264,40 @@ module.exports = {
     {
       console.log(error);
     }
-  }
+  },
+  async validaImmagine(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    const isTheMiracleServer = guild.id===process.env.GUILD_ID_TM;
+    if(!isTheMiracleServer)
+    {
+      await interaction.reply({content:"Non sei su TMZ! 😡", ephemeral:true});
+      return;
+    }
+      await interaction.deferReply({ ephemeral: true }); 
+      
+
+      let images=await contestService.getImages();
+      console.log(images.map(x=> x.nameGuild))
+
+      if(images==undefined || images.length==0)
+      {
+        interaction.editReply({
+          content:"Non ci sono immagini da validare!"+ utils.getRandomEmojiRisposta(),
+          ephemeral:true
+        });
+        return;
+      }
+
+      const reply=await interaction.editReply({
+        content: 'Scegli un server! '+ utils.getRandomEmojiFelici(),
+        components: [generics.creaLookupSenzaEmoji({list:images.map(x=> x.nameGuild),id:'guildsimmagini',placeholder:'Servers'})],
+        ephemeral: true
+      });
+  },
 }
 

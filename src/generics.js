@@ -21,6 +21,24 @@ module.exports =
 		const row = new ActionRowBuilder().addComponents(select);
         return row;
     },
+    creaLookupSenzaEmoji({list, id, placeholder})
+    {
+        console.log(id)
+        const select = new StringSelectMenuBuilder()
+			.setCustomId(id)
+			.setPlaceholder(placeholder)
+            .setMinValues(0)
+            .setMaxValues(list.length)
+			.addOptions(
+				list.map((value)=>
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(value)
+                        .setValue(value)
+                )
+			);
+		const row = new ActionRowBuilder().addComponents(select);
+        return row;
+    },
 
     creaEmbeded(title, text, interaction,embeds=null)
     {
