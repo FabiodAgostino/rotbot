@@ -1,3 +1,4 @@
+const VERSION = "1.0.0-b02";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -45,6 +46,7 @@ module.exports =
 {
     dungeons,
     classiTM,
+    VERSION,
     convertTimeStampToDate(timestamp)
     {
         var data = new Date(timestamp);

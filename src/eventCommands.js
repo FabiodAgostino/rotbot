@@ -26,7 +26,7 @@ module.exports = {
         case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:"Ecco! "+ await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
-        case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+process.env.VERSION+"__", ephemeral:true});break;
+        case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
 
       }
       return;
