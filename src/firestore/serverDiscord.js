@@ -41,4 +41,27 @@ async function getServer(guildId) {
     }
   }
 
-module.exports = {insertServer,getServer}
+  async function getAllServers() {
+    const firebaseConnect = require('./firebaseConnect.js');
+    const collectionRef = collection(firebaseConnect.db, "ServerDiscord");
+  
+  
+    try {
+        const array = [];
+        const querySnapshot = await getDocs(collectionRef);
+        querySnapshot.forEach((doc) => {
+            const object = {
+                id: doc.data().id,
+                date: doc.data().date,
+                name: doc.data().name
+            };
+            array.push(object);
+        });
+        return array;
+    } catch (error) {
+        console.error("Si è verificato un errore durante la query:", error);
+        throw error; 
+    }
+  }
+
+module.exports = {insertServer,getServer,getAllServers}

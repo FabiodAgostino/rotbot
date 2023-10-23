@@ -152,10 +152,10 @@ const commands= [
       await rest.put(
         Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),{body: commands}
       )
-      console.log("Slash commands registrati");
+      console.log("Slash commands registrati per server "+guildId);
     }catch(error)
     {
-      console.log("Errore:"+ error);
+      console.log("Errore:"+ error +" per server "+guildId);
     }
   }
     

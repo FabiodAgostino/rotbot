@@ -1,4 +1,4 @@
-const VERSION = "1.0.0-b02";
+const VERSION = "1.0.0-b03";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},

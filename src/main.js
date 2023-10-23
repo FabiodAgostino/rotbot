@@ -12,6 +12,7 @@ const client = new Client({
 const polls = require('./poll.js'); 
 const eventButtons = require('./eventButtons.js'); 
 const eventCommands = require('./eventCommands.js'); 
+const eventMessages = require('./eventMessages.js'); 
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
 const serverDiscordService = require('./firestore/serverDiscord.js'); 
 const commands = require('./commands.js'); 
@@ -32,9 +33,14 @@ client.on(Events.InteractionCreate,async (interaction) =>{
   const guild= {name:guildName, id:interaction.guildId};
   console.log("Logger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date()));
 
-  eventCommands.executeCommandsEvent(interaction,guild);
-  polls.executePollsEvents(interaction,guild);
-  eventButtons.executeButtonsEvents(interaction,guild,client);
+  await eventCommands.executeCommandsEvent(interaction,guild);
+  await polls.executePollsEvents(interaction,guild);
+  await eventButtons.executeButtonsEvents(interaction,guild,client);
+})
+
+client.on(Events.MessageCreate,async (message) =>{
+  
+  eventMessages.executeMessageEvent(message);
 })
 
 client.on(Events.GuildCreate, async (guild) => {
@@ -47,7 +53,6 @@ client.on(Events.GuildCreate, async (guild) => {
   }
   else
     console.log(`Il bot è gia presente nel db. ${guild.name}`);
-
 });
 
 
