@@ -31,7 +31,7 @@ module.exports = {
         return;
       }
 
-      interaction.showModal(modals.sondaggioData());
+      await interaction.showModal(modals.sondaggioData());
 
       const submitted = await interaction.awaitModalSubmit({
           time: 60000,
@@ -79,7 +79,6 @@ module.exports = {
         const exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle("Evento il giorno: "+data)
-        .setDescription("@everyone")
         .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
         .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
         .addFields(
@@ -91,8 +90,10 @@ module.exports = {
     
         if (submitted) {
             const message=await submitted.reply({
+              content:"@everyone",
               embeds:[exampleEmbed],
-              fetchReply:true
+              fetchReply:true,
+              allowedMentions:{parse:["everyone"]}
             });
             filteredEmojis.forEach(x=> message.react(x))
         }
@@ -105,7 +106,7 @@ module.exports = {
         return;
       }
 
-      interaction.showModal(modals.sondaggioEventoDate());
+      await interaction.showModal(modals.sondaggioEventoDate());
 
       const submitted = await interaction.awaitModalSubmit({
           time: 60000,
@@ -153,7 +154,6 @@ module.exports = {
         const exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle("Evento: "+data)
-        .setDescription("@everyone")
         .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
         .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
         .addFields(
@@ -165,13 +165,14 @@ module.exports = {
     
         if (submitted) {
             const message=await submitted.reply({
+              content:"@everyone",
               embeds:[exampleEmbed],
-              fetchReply:true
+              fetchReply:true,
+              allowedMentions:{parse:["everyone"]}
             });
             filteredEmojis.forEach(x=> message.react(x))
         }
     },
-
     async sondaggioSiNo(interaction,information)
     {
       if(!information.isUtente)
@@ -197,7 +198,7 @@ module.exports = {
       const pollQuestion = submitted.fields.getTextInputValue("question");
       const exampleEmbed = new EmbedBuilder()
             .setColor(0xf9de35)
-            .setDescription("**"+pollQuestion+"**"+"@everyone")
+            .setDescription("**"+pollQuestion+"**")
             .setAuthor({ name: interaction.member.nickname, iconURL:"https://i.postimg.cc/L6CGnvzk/hacker-1.png"})
             .setThumbnail('https://i.postimg.cc/vZFpdDMf/logo-removebg-preview.png')
             .addFields(
@@ -207,7 +208,14 @@ module.exports = {
             .setTimestamp()
             .setFooter({ text: 'RotinielToolsDev' });
       
-        const reply=await submitted.reply({embeds:[exampleEmbed],fetchReply:true});
+      const reply=await submitted.reply(
+        {
+          content:"@everyone",
+          embeds:[exampleEmbed],
+          fetchReply:true,
+          allowedMentions:{parse:["everyone"]}
+        }
+        );
 
             const pollButtons = new ActionRowBuilder()
               .addComponents(
@@ -223,7 +231,6 @@ module.exports = {
       if(submitted)
         submitted.editReply({components:[pollButtons]});
     },
-
     async sondaggioCaccia(interaction,guild,information)
     {
       if(!information.isUtente)
@@ -245,19 +252,22 @@ module.exports = {
       });
       var dungeonScelto;
       collector.on("collect", async (collected) => {
-        dungeonScelto = collected.values[0];
-        interaction.deleteReply();
+      dungeonScelto = collected.values[0];
+      await interaction.deleteReply();
 
         const emoji=dungeons.filter(x=> x.name==dungeonScelto)[0].emoji;
         const randomEmoji = utils.getRandomEmoji();
         var text="**Questa sera caccia a "+dungeonScelto+" vota: "+emoji+" se __ci sei__, "+randomEmoji+" se __non ci sei__**.";
         const message= await interaction.followUp({
+          content:"@everyone",
           embeds:[generics.creaEmbeded("Caccia a "+dungeonScelto+".",text,interaction)],
-          fetchReply:true
+          fetchReply:true,
+          allowedMentions:{parse:["everyone"]}
         });
         message.react(emoji);
         message.react(randomEmoji);
-        await dungeonsFirebase.insertCacciaOrganizzata({author:interaction.user.globalName,destination:dungeonScelto, guild:guild,idMessage:message.id,idChannel:interaction.channelId});
+
+        await dungeonsFirebase.insertCacciaOrganizzata({author:information.author,destination:dungeonScelto, guild:guild,idMessage:message.id,idChannel:interaction.channelId});
       });
     }
 }

@@ -1,6 +1,8 @@
-const {ButtonInteraction, ButtonStyle} = require("discord.js")
+const {ButtonInteraction, ButtonStyle,ActionRowBuilder, ButtonBuilder} = require("discord.js")
 const cacceOrganizzateService = require("./firestore/cacceOrganizzate.js")
 const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
+const contestService = require("./firestore/contest.js")
+
 
 const generics = require('./generics.js'); 
 const utils = require('./utils.js'); 
@@ -18,6 +20,7 @@ module.exports = {
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
+        await this.buttonCaricaImmagine(interaction,information,guild,client);
         await this.buttonDividi(interaction, information, guild, client);
     },
     async buttonSondaggioSiNo(interaction,information)
@@ -51,7 +54,7 @@ module.exports = {
                 const newYesCount = parseInt(yesField.value) + 1;
                 yesField.value = newYesCount;
 
-                interaction.reply({content:VoteCountedReply, ephemeral:true})
+                await interaction.reply({content:VoteCountedReply, ephemeral:true})
                 interaction.message.edit({embeds:[pollEmbed]});
                 break;
 
@@ -60,7 +63,7 @@ module.exports = {
                 noField.value = newNoCount;
 
                 interaction.reply({content:VoteCountedReply, ephemeral:true})
-                interaction.message.edit({embeds:[pollEmbed]});
+                await interaction.message.edit({embeds:[pollEmbed]});
                 break;
         }
     },
@@ -75,28 +78,39 @@ module.exports = {
             return;
         }
 
-        const author = splittedArray[2];
-        const dungeon = splittedArray[3];
-        const idChannel= splittedArray[4];
-        const idMessage =splittedArray[5];
+        const id = splittedArray[2];
         
-        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==undefined);
-        if(result==undefined || result.length>0)
+        const result=await cacceOrganizzateService.getCacceOrganizzateDocumentById(guild.id,id);
+        if(result.data.length==0)
         {
-            interaction.reply({
-                content:"Questa caccia è già stata startata  "+ utils.getRandomEmojiFelici(),
-                ephemeral:true
-            })
+            await interaction.reply({content:"La caccia è stata già startata!", ephemeral:true});
             return;
         }
-        await cacceOrganizzateService.insertCacciaTempoLoot({author:author, destination:dungeon, guild:{name:guild.name, id:guild.id}, messageId:idMessage, channelId:idChannel});
-        const buttonStop=generics.creaButton(ButtonStyle.Danger,"Stop!","button-stop-"+author+"-"+dungeon+"-"+guild.name+"-"+guild.id);
-        interaction.reply(
+        let ref= result.ref;
+        const cacciaOrganizzata= result.data[0];
+
+        const author = cacciaOrganizzata.author;
+        const destination = cacciaOrganizzata.destination;
+        const idMessage = cacciaOrganizzata.messageId;
+        const idChannel = cacciaOrganizzata.channelId;
+        cacciaOrganizzata.finita=true;
+        try
         {
-            content:"Premi il tasto stop quando hai terminato la caccia! "+ utils.getRandomEmojiFelici(),
-            ephemeral:true,
-            components:[buttonStop]
-        })
+            await cacceOrganizzateService.insertCacciaTempoLoot({author:author, destination:destination, guild:{name:guild.name, id:guild.id}, messageId:idMessage, channelId:idChannel,id:id});
+            await cacceOrganizzateService.updateCacciaOrganizzata(cacciaOrganizzata,ref);
+            const buttonStop=generics.creaButton(ButtonStyle.Danger,"Stop!","button-stop-"+id);
+            await interaction.update(
+            {
+                content:"Premi il tasto stop quando hai terminato la caccia! "+ utils.getRandomEmojiFelici(),
+                ephemeral:true,
+                components:[buttonStop]
+            })
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+        
     },
     async buttonStopCaccia(interaction,information,guild,client)
     {
@@ -109,25 +123,119 @@ module.exports = {
             return;
         }
         const dataAttuale= new Date();
-        const dungeon = splittedArray[3];
+        const id = splittedArray[2];
 
-        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
-        
-        if(result==null || result.length==0)
+        try
         {
-            await interaction.reply({content:"Questa caccia è già terminata. "+ utils.getRandomEmojiFelici(), ephemeral:true});
+            const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
+            if(result[0].stoppata)
+            {
+                await interaction.reply({content:"Questa caccia è stata già stoppata! "+ utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+            }
+            const data = result[0];
+            const newData = {
+                stoppata:true
+            }
+            await cacceOrganizzateService.updateCacciaTempoLoot(data.reference,newData);
+        }
+        catch(error)
+        {
+            console.log(error);
+            return;
+        }
+        
+        const buttons = new ActionRowBuilder()
+              .addComponents(
+                new ButtonBuilder()
+                  .setLabel('Dividi')
+                  .setCustomId("button-dividi"+"-"+id+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                  .setLabel("Carica immagine")
+                  .setCustomId("button-image"+"-"+id+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Primary)
+              );
+        
+        await interaction.update(
+        {
+            content:"Premi il tasto **'Dividi'** se vuoi procedere subito alla divisione, oppure il bottone **'Carica immagine'** se vuoi inserire screenshot da far validare per il contest.  "+ utils.getRandomEmojiFelici(),
+            ephemeral:true,
+            components:[buttons]
+        })
+
+    },
+    async buttonCaricaImmagine(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[1]!=="image") return;
+        if(!information.isUtente)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
 
-        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+dungeon+"-"+dataAttuale);
-        interaction.reply(
-        {
-            content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
-            ephemeral:true,
-            components:[buttonDividi]
-        })
+        const id = splittedArray[2];
+        const dataAttuale = splittedArray[3];
 
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
+        if(!result[0])
+        {
+            await interaction.reply({content:"Questa caccia è già terminata! "+ utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
+        await interaction.showModal(modals.modaleImmagini());
         
+        const submitted = await interaction.awaitModalSubmit({
+            time: 150000,
+            filter: i => i.user.id === interaction.user.id,
+          }).catch(error => {
+            console.error(error)
+            return null
+          })
+        if(submitted==null)
+        {
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
+
+        const fields = submitted.fields;
+        const img1=fields.getTextInputValue("link1");
+        const img2=fields.getTextInputValue("link2");
+        const img3=fields.getTextInputValue("link3");
+        const img4=fields.getTextInputValue("link4");
+        const img5=fields.getTextInputValue("link5");
+        let arrayLink = [];
+
+        if(img1!=null && img1!='')
+            arrayLink.push(img1)
+        if(img2!=null && img2!='')
+            arrayLink.push(img2)
+        if(img3!=null && img3!='')
+            arrayLink.push(img3)
+        if(img4!=null && img4!='')
+            arrayLink.push(img4)
+        if(img5!=null && img5!='')
+            arrayLink.push(img5)
+
+        const author = submitted.user.globalName==undefined ? submitted.user.username : submitted.user.globalName;
+        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+id+"-"+dataAttuale);
+        try
+        {
+            if (submitted) {
+                await submitted.deferReply({ ephemeral: true }); 
+                await contestService.insertImages({arrayLink:arrayLink,author:author,idGuild:guild.id, nameGuild:guild.name,idCaccia:id})
+                const message=await submitted.editReply({
+                    content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
+                    components:[buttonDividi],
+                });
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
     },
     async buttonDividi(interaction,information,guild,client)
     {
@@ -140,13 +248,17 @@ module.exports = {
             return;
         }
 
-        const dungeon = splittedArray[2];
+        const id = splittedArray[2];
         const dataAttuale = splittedArray[3];
 
-        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,dungeon)).filter(x=> x.tempo==null);
-
-        interaction.showModal(modals.modaleStopCaccia());
-        const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,dungeon,guild.id,interaction);
+        const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
+        if(!result[0])
+        {
+            await interaction.reply({content:"Questa caccia è già terminata! "+ utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
+        await interaction.showModal(modals.modaleStopCaccia());
+        const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,result[0].destination,guild.id,interaction);
 
         const submitted = await interaction.awaitModalSubmit({
             time: 150000,
@@ -155,6 +267,12 @@ module.exports = {
             console.error(error)
             return null
           })
+
+        if(submitted==null)
+        {
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+        }
 
         const fields = submitted.fields;
         const soldi=fields.getTextInputValue("soldi");
@@ -181,18 +299,20 @@ module.exports = {
             frammenti: frammenti,
             nuclei: nucleiFormidabili,
             sangue: sangue,
-            tempo:tempo}
+            tempo:tempo,
+            finita: true}
 
-        const embeds = generics.creaEmbeded("Resoconto caccia a "+dungeon,"",interaction,embedFields);
+        const embeds = generics.creaEmbeded("Resoconto caccia a "+result[0].destination,"",interaction,embedFields);
         try
         {
             if (submitted) {
-                const message=await submitted.reply({
+                const message=await submitted.update({
                     content:"I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
                     embeds:[embeds],
+                    components:[],
                     fetchReply:true
                 });
-                cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference, newData)
+                await cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference, newData)
             }
         }
         catch(error)

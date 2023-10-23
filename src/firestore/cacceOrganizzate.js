@@ -5,80 +5,132 @@ const ruoloTipoClasseService = require('./ruoloTipoClasse.js');
 
 
 
-async function getCacceOrganizzateDocument(soloOggi,guildId) {
+async function getCacceOrganizzateDocument(soloOggi,guildId,nomeDungeon) {
   const firebaseConnect = require('./firebaseConnect.js');
   const collectionRef = collection(firebaseConnect.db, "CacciaOrganizzata");
-
-  let que =query(collectionRef, where("guildId","==",guildId));
-
-  const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-  
-  if (soloOggi) 
-    que = query(collectionRef, where("date", ">=", startOfDay), where("date", "<", endOfDay), where("guildId","==",guildId));
+  let que =query(collectionRef, where("guildId","==",guildId), where("destination","==",nomeDungeon));
 
   try {
       const array = [];
       const querySnapshot = await getDocs(que);
       querySnapshot.forEach((doc) => {
           const object = {
+              id:doc.data().id,
               author: doc.data().author,
               date: doc.data().date,
               destination: doc.data().destination,
               guild: { name: doc.data().guild, id: doc.data().guildId },
-              subscribers: doc.data().subscribers,
               messageId:doc.data().messageId,
-              channelId:doc.data().channelId
+              channelId:doc.data().channelId,
+              finita:doc.data().finita,
           };
           array.push(object);
       });
+      console.log("getCacceOrganizzateDocument OK");
       return array;
   } catch (error) {
+      console.log("getCacceOrganizzateDocument KO");
       console.error("Si è verificato un errore durante la query:", error);
       throw error; 
   }
 }
 
+async function getCacceOrganizzateDocumentById(guildId,id) {
+  const firebaseConnect = require('./firebaseConnect.js');
+  const collect = collection(firebaseConnect.db, "CacciaOrganizzata");
+  id = parseInt(id);
+  let que =query(collect, where("guildId","==",guildId), where("id","==",id), where("finita","==",false));
+  let ref;
+  const querySnapshot = await getDocs(que);
+  try {
 
-async function getCacceTempoLootDocument(guildId,nomeDungeon) {
+      var array = new Array();
+      querySnapshot.forEach((doc) => {
+          const object = {
+              id:doc.data().id,
+              author: doc.data().author,
+              date: doc.data().date,
+              destination: doc.data().destination,
+              guild: { name: doc.data().guild, id: doc.data().guildId },
+              messageId:doc.data().messageId,
+              channelId:doc.data().channelId,
+              finita:doc.data().finita,
+          };
+          array.push(object);
+      ref = doc.ref;
+      });
+      console.log("getCacceOrganizzateDocumentById OK");
+  } catch (error) {
+      console.log("getCacceOrganizzateDocumentById KO");
+      console.error("Errore durante il recupero dei documenti da Firestore:", error);
+  }
+  return {data:array,ref:ref};
+}
+
+async function updateCacciaOrganizzata(newData,ref) {
+  try {
+    const documentSnapshot = await getDoc(ref);
+
+    if (documentSnapshot.exists()) {
+      const existingData = documentSnapshot.data();
+
+      const updatedData = {
+        ...existingData,
+        ...newData,
+      };
+
+      await updateDoc(ref, updatedData); // Utilizza newData.reference
+      console.log("updateCacciaOrganizzata OK");
+    } else {
+      console.log("Il documento non esiste.");
+    }
+  } catch (error) {
+    console.log("updateCacciaOrganizzata KO");
+    console.error("Errore durante l'aggiornamento del documento:", error);
+    throw error;
+  }
+}
+
+
+async function getCacceTempoLootDocument(guildId,id) {
   const firebaseConnect = require('./firebaseConnect.js');
   const collectionRef = collection(firebaseConnect.db, "CacciaOrganizzataTempoLoot");
-
-
-  const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()-0.2);
-  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
-  let que = query(collectionRef, where("date", ">=", startOfDay), where("date", "<", endOfDay), where("guildId","==",guildId), where("destination","==",nomeDungeon));
-
+  const idN = parseInt(id);
+  let que = query(collectionRef, where("guildId","==",guildId),where("id","==",idN));
+  
   try {
       const array = [];
       const querySnapshot = await getDocs(que);
       querySnapshot.forEach((doc) => {
           const object = {
+              id: doc.data().id,
               author: doc.data().author,
               date: doc.data().date,
               destination: doc.data().destination,
-              guild: { name: doc.data().guild, id: doc.data().guildId },
+              guild: { name: doc.data().guildName, id: doc.data().guildId },
               subscribers: doc.data().subscribers,
               channelId:doc.data().channelId,
               messageId:doc.data().messageId,
               reference: doc.ref,
-              tempo:doc.data().tempo
+              tempo:doc.data().tempo,
+              stoppata: doc.data().stoppata
           };
           array.push(object);
       });
+      console.log("getCacceTempoLootDocument OK");
       return array;
   } catch (error) {
+      console.log("getCacceTempoLootDocument KO");
       console.error("Si è verificato un errore durante la query:", error);
       throw error; 
   }
 }
 
-async function insertCacciaTempoLoot({author, destination, guild, messageId,channelId}) {
+async function insertCacciaTempoLoot({author, destination, guild, messageId,channelId,id}) {
     const firebaseConnect = require('./firebaseConnect.js');
+    
     const dataDaInserire = {
+        id: parseInt(id),
         author: author,
         destination: destination,
         date: new Date(),
@@ -90,9 +142,13 @@ async function insertCacciaTempoLoot({author, destination, guild, messageId,chan
     try {
         const collectionRef = collection(firebaseConnect.db, "CacciaOrganizzataTempoLoot"); 
         const docRef = await addDoc(collectionRef, dataDaInserire);
+        console.log("insertCacciaTempoLoot OK");
     } catch (error) {
         console.error("Error writing document: ", error);
+        console.log("insertCacciaTempoLoot KO");
+
     }
+    return id;
 }
 
 async function getUsersFromReaction(client, channelId, messageId, dungeonName, guildId,interaction) {
@@ -165,13 +221,14 @@ async function updateCacciaTempoLoot(documentReference, newData)
       };
 
       await updateDoc(documentReference, updatedData);
-
+      console.log("updateCacciaTempoLoot OK")
     } else {
       console.log("Il documento non esiste.");
     }
   } catch (error) {
+    console.log("updateCacciaTempoLoot KO")
     console.error("Errore durante l'aggiornamento del documento:", error);
     throw error;
 }
 }
-module.exports = {getCacceOrganizzateDocument,getCacceTempoLootDocument, insertCacciaTempoLoot,updateCacciaTempoLoot,getUsersFromReaction}
+module.exports = {getCacceOrganizzateDocument,getCacceTempoLootDocument, insertCacciaTempoLoot,updateCacciaTempoLoot,getUsersFromReaction,getCacceOrganizzateDocumentById,updateCacciaOrganizzata}

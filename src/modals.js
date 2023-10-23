@@ -2,7 +2,7 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini };
 
 
 function sondaggioData()
@@ -127,6 +127,59 @@ function modaleStopCaccia()
     const c = new ActionRowBuilder().addComponents(fama);
     const d = new ActionRowBuilder().addComponents(nucleiInfusi);
     const e = new ActionRowBuilder().addComponents(sangue);
+
+
+    modal.addComponents(a,b,c,d,e);
+    return modal;
+}
+
+function modaleImmagini()
+{
+  const modal = new ModalBuilder()
+    .setCustomId('modaleCaricaImmagini')
+    .setTitle('Carica una o più immagini da validare.');
+
+    const img1 = new TextInputBuilder()
+      .setCustomId('link1')
+      .setLabel("🔗 Immagine 1:")
+      .setPlaceholder("Inserisci qui il link.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+      const img2 = new TextInputBuilder()
+      .setCustomId('link2')
+      .setLabel("🔗 Immagine 2:")
+      .setPlaceholder("Inserisci qui il link.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+      const img3 = new TextInputBuilder()
+      .setCustomId('link3')
+      .setLabel("🔗 Immagine 3:")
+      .setPlaceholder("Inserisci qui il link.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+      const img4 = new TextInputBuilder()
+      .setCustomId('link4')
+      .setLabel("🔗 Immagine 4:")
+      .setPlaceholder("Inserisci qui il link.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+      const img5 = new TextInputBuilder()
+      .setCustomId('link5')
+      .setLabel("🔗 Immagine 5:")
+      .setPlaceholder("Inserisci qui il link.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+
+    const a = new ActionRowBuilder().addComponents(img1);
+    const b = new ActionRowBuilder().addComponents(img2);
+    const c = new ActionRowBuilder().addComponents(img3);
+    const d = new ActionRowBuilder().addComponents(img4);
+    const e = new ActionRowBuilder().addComponents(img5);
 
 
     modal.addComponents(a,b,c,d,e);

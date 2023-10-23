@@ -61,6 +61,10 @@ const commands= [
       description: 'Crea un sondaggio con domanda unica e risposta si/no'
     },
     {
+      name: 'valida-immagini',
+      description: "Permette di validare un'immagine da un validatore"
+    },
+    {
       name: 'sondaggio-caccia',
       description: 'Crea un sondaggio per una caccia con la possibilità di salvare i dati sulle tempistiche e sul loot.'
     },
@@ -117,6 +121,19 @@ const commands= [
             {name:"Admin",value:"admin"},
             {name:"Utente",value:"utente"}
           ]
+        }
+      ]
+    },
+    {
+      name:'set-validatore',
+      description:'Permette di mappare il role "Validatore" con un utente specifico.',
+      options:
+      [
+        {
+          name:"validatore",
+          description:"L'utente che vuoi rendere validatore",
+          required:true,
+          type: ApplicationCommandOptionType.Mentionable
         }
       ]
     },

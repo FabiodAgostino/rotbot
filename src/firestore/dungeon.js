@@ -1,4 +1,5 @@
 const { collection, getDocs,addDoc } = require("firebase/firestore");
+const utils = require('../utils.js'); 
 
 async function getDungeonDocuments() 
     {
@@ -10,7 +11,7 @@ async function getDungeonDocuments()
             const querySnapshot = await getDocs(dungeonCollection);
             
             querySnapshot.forEach((doc) => {
-                array.push({name:doc.data().name,emoji:doc.data().emoji});
+                array.push({id:doc.data().id,name:doc.data().name,emoji:doc.data().emoji});
         });
         } catch (error) {
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
@@ -22,13 +23,15 @@ async function insertCacciaOrganizzata({author, destination, guild,idMessage, id
 {
     const firebaseConnect = require('./firebaseConnect.js');
     const dataDaInserire = {
+        id: utils.idRnd(),
         author: author,
         destination: destination,
         date: new Date(),
         guild: guild.name,
         guildId: guild.id,
         messageId: idMessage,
-        channelId:idChannel
+        channelId:idChannel,
+        finita: false,
       };
       try {
         const cacciaOrganizzataCollection = collection(firebaseConnect.db, "CacciaOrganizzata");
