@@ -175,6 +175,17 @@ module.exports = {
             await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
+        const buttons = new ActionRowBuilder()
+              .addComponents(
+                new ButtonBuilder()
+                  .setLabel('Dividi')
+                  .setCustomId("button-dividi"+"-"+id+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                  .setLabel("Carica immagine")
+                  .setCustomId("button-image"+"-"+id+"-"+dataAttuale)
+                  .setStyle(ButtonStyle.Primary)
+              );
 
         const id = splittedArray[2];
         const dataAttuale = splittedArray[3];
@@ -307,10 +318,19 @@ module.exports = {
         {
             if (submitted) {
                 const message=await submitted.update({
-                    content:"I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
+                    content:"... ⏬",
+                    embeds:[],
+                    components:[],
+                    fetchReply:true,
+                    ephemeral:false
+                });
+                await submitted.followUp({
+                    content:"@everyone I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
                     embeds:[embeds],
                     components:[],
-                    fetchReply:true
+                    fetchReply:true,
+                    ephemeral:false,
+                    allowedMentions:{parse:["everyone"]}
                 });
                 await cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference, newData)
             }
