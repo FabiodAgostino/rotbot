@@ -16,8 +16,12 @@ async function getRuoloTipoClasse(guildId, role=null)
                 array.push({role:doc.data().role,tipoClasse:doc.data().tipoClasse, guildId:doc.data().guild.id});
         });
         } catch (error) {
+        console.log("getRuoloTipoClasse OK");
+
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
+        console.log("getRuoloTipoClasse KO");
+
         return array;
     }
 
@@ -34,7 +38,9 @@ async function insertRuoloTipoclasse({role, tipoClasse, guild})
         try {
         const collecttion = collection(firebaseConnect.db, "RuoloTipoClasse");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertRuoloTipoclasse OK");
     } catch (error) {
+        console.log("insertRuoloTipoclasse KO");
         console.error("Error writing document: ", error);
     }
 }

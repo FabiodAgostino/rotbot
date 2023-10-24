@@ -126,7 +126,7 @@ async function getCacceTempoLootDocument(guildId,id) {
   }
 }
 
-async function insertCacciaTempoLoot({author, destination, guild, messageId,channelId,id}) {
+async function insertCacciaTempoLoot({author, destination, guild, messageId,channelId,id},isManuale=false,data=null) {
     const firebaseConnect = require('./firebaseConnect.js');
     
     const dataDaInserire = {
@@ -139,6 +139,17 @@ async function insertCacciaTempoLoot({author, destination, guild, messageId,chan
         messageId:messageId,
         channelId:channelId
     };
+    if(isManuale)
+    {
+      dataDaInserire.isManuale=true;
+      dataDaInserire.id= utils.idRnd();
+      dataDaInserire.sangue= data.sangue;
+      dataDaInserire.monete= data.monete;
+      dataDaInserire.frammenti = data.frammenti;
+      dataDaInserire.nuclei = data.nuclei;
+      dataDaInserire.finita = data.finita;
+      id=dataDaInserire.id;
+    }
     try {
         const collectionRef = collection(firebaseConnect.db, "CacciaOrganizzataTempoLoot"); 
         const docRef = await addDoc(collectionRef, dataDaInserire);

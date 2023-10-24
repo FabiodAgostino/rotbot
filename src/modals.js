@@ -2,13 +2,13 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini,modaleStep3 };
 
 
-function sondaggioData()
+function sondaggioData(interactionId)
 {
     const modal = new ModalBuilder()
-    .setCustomId('sondaggioGenerico')
+    .setCustomId('sondaggioGenerico-'+interactionId)
     .setTitle('Sondaggio Generico');
 
     const favoriteColorInput = new TextInputBuilder()
@@ -32,10 +32,10 @@ function sondaggioData()
     return modal;
 }
 
-function sondaggioEventoDate()
+function sondaggioEventoDate(interactionId)
 {
     const modal = new ModalBuilder()
-    .setCustomId('sondaggioEventoDate')
+    .setCustomId('sondaggioEventoDate-'+interactionId)
     .setTitle('Sondaggio Generico');
 
     const favoriteColorInput = new TextInputBuilder()
@@ -60,10 +60,10 @@ function sondaggioEventoDate()
 }
 
 
-function sondaggioSiNo()
+function sondaggioSiNo(interactionId)
 {
     const modal = new ModalBuilder()
-    .setCustomId('sondaggioSiNo')
+    .setCustomId('sondaggioSiNo-'+interactionId)
     .setTitle('Sondaggio base');
 
     const hobbiesInput = new TextInputBuilder()
@@ -80,10 +80,10 @@ function sondaggioSiNo()
 }
 
 
-function modaleStopCaccia()
+function modaleStopCaccia(interactionId)
 {
     const modal = new ModalBuilder()
-    .setCustomId('modaleStopCaccia')
+    .setCustomId(`modaleStopCaccia-${interactionId}`)
     .setTitle('Resoconto');
 
     const soldi = new TextInputBuilder()
@@ -133,10 +133,39 @@ function modaleStopCaccia()
     return modal;
 }
 
-function modaleImmagini()
+function modaleStep3(interactionId)
+{
+    const modal = new ModalBuilder()
+    .setCustomId('modaleStep3-'+interactionId)
+    .setTitle('Informazioni finali');
+
+    const tempo = new TextInputBuilder()
+      .setCustomId('tempo')
+      .setLabel("🕙 Tempo")
+      .setPlaceholder("Utilizza questo formato 01:15:01")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+
+    const numeroPg = new TextInputBuilder()
+      .setCustomId('numPg')
+      .setLabel("👥 Numero pg presenti")
+      .setPlaceholder("Inserisci qui il numero dei pg presenti.")
+      .setRequired(false)
+      .setStyle(TextInputStyle.Short);
+    
+
+    const a = new ActionRowBuilder().addComponents(tempo);
+    const b = new ActionRowBuilder().addComponents(numeroPg);
+
+
+    modal.addComponents(a,b);
+    return modal;
+}
+
+function modaleImmagini(interactionId)
 {
   const modal = new ModalBuilder()
-    .setCustomId('modaleCaricaImmagini')
+    .setCustomId('modaleCaricaImmagini-'+interactionId)
     .setTitle('Carica una o più immagini da validare.');
 
     const img1 = new TextInputBuilder()

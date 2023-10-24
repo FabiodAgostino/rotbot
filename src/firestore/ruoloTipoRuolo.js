@@ -21,8 +21,10 @@ async function getRuoloTipoRuolo(guildId,role=null,tipoRuolo=null)
                 array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guildId});
         });
         } catch (error) {
+            console.log("getRuoloTipoRuolo KO");
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
+        console.log("getRuoloTipoRuolo OK");
         return array;
     }
 
@@ -40,7 +42,9 @@ async function insertRuoloTipoRuolo({role, tipoRuolo, guild})
         try {
         const collecttion = collection(firebaseConnect.db, "RuoloTipoRuolo");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertRuoloTipoRuolo OK");
     } catch (error) {
+        console.log("insertRuoloTipoRuolo KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -57,7 +61,9 @@ async function insertRuoloValidatore(user)
         try {
         const collecttion = collection(firebaseConnect.db, "RuoloTipoRuolo");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertRuoloValidatore OK");
     } catch (error) {
+        console.log("insertRuoloValidatore KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -79,8 +85,10 @@ async function getValidatori()
                 array.push({username:doc.data().username,idUser:doc.data().idUser, isValidatore:doc.data().isValidatore});
         });
         } catch (error) {
+            console.log("getValidatori OK");
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
+        console.log("getValidatori KO");
         return array;
     }
 
@@ -101,8 +109,10 @@ async function getRuoliUtente(guildId,ruoloUtente)
             array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guild.id});
     });
     } catch (error) {
+        console.log("getRuoliUtente OK");
         console.error("Errore durante il recupero dei documenti da Firestore:", error);
     }
+    console.log("getRuoliUtente KO");
     return array;
 }
 

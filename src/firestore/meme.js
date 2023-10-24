@@ -1,4 +1,4 @@
-const { collection, query, where, getDocs,addDoc} = require("firebase/firestore");
+const { collection, query, where, getDocs,addDoc, orderBy, endAt,startAt} = require("firebase/firestore");
 
 
 async function insertMeme({idGuild, author, meme})
@@ -13,7 +13,9 @@ async function insertMeme({idGuild, author, meme})
         try {
         const collecttion = collection(firebaseConnect.db, "Meme");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertMeme OK");
     } catch (error) {
+        console.log("insertMeme KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -32,7 +34,9 @@ async function insertTicket({idGuild, author, type, text})
         try {
         const collecttion = collection(firebaseConnect.db, "Ticket");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertTicket OK");
     } catch (error) {
+        console.log("insertTicket KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -54,11 +58,35 @@ async function getAllMeme(guildId) {
             };
             array.push(object);
         });
+        console.log("getAllMeme OK");
         return array;
     } catch (error) {
+        console.log("getAllMeme KO");
         console.error("Si è verificato un errore durante la query:", error);
         throw error; 
     }
+  }
+  async function getMemeByText(guildId, searchTerm) {
+    try {
+      console.log("getMemeByText OK");
+      var result=await getAllMeme(guildId);
+      result = result.map(x=> x.meme);
+      result = customSearch(result,searchTerm);
+      return result[0];
+    } catch (error) {
+        console.log("getMemeByText KO");
+        console.error("Si è verificato un errore durante la query:", error);
+        throw error;
+    }
+}
+function customSearch(array, searchTerm) {
+    const results = [];
+    for (const item of array) {
+      if (item?.includes(searchTerm)) {
+        results.push(item);
+      }
+    }
+    return results;
   }
 async function getRandomMeme(guildId)
 {
@@ -72,5 +100,6 @@ async function getRandomMeme(guildId)
     getAllMeme,
     insertMeme,
     getRandomMeme,
-    insertTicket
+    insertTicket,
+    getMemeByText
     };

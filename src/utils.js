@@ -1,4 +1,4 @@
-const VERSION = "1.0.0-b04";
+const VERSION = "1.0.0-b05";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -68,6 +68,23 @@ module.exports =
     {
         return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
     },
+    parseTimeString(timeString) {
+        try
+        {
+            const [hours, minutes, seconds] = timeString.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hours || 0);
+            date.setMinutes(minutes || 0);
+            date.setSeconds(seconds || 0);
+            return date;
+        }
+        catch(error)
+        {
+            console.log("parseTimeString KO");
+            console .log(error);
+            return null;
+        }
+      },
     differenceBetweenTwoTimeStamp(date)
     {
         const specificDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);

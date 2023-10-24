@@ -21,6 +21,15 @@ const commands= [
       ]
     },
     {
+      name: 'get-meme-by-word',
+      description: 'Ritorna un meme con il testo più simile',
+      required:true,
+      options:
+      [
+        {name:"meme", description:"Il testo del meme che vuoi cercare", requred:true, type:ApplicationCommandOptionType.String},
+      ]
+    },
+    {
       name: 'insert-segnalazione',
       description: 'Insersci un ticket di assistenza oppure consigliaci qualche nuova feature!',
       voiceChannel: false,
@@ -140,7 +149,25 @@ const commands= [
     {
       name:'get-version',
       description:'Ritorna la versione del bot.'
-    }
+    },
+    {
+      name:"insert-caccia-manuale",
+      description:"Inserisci una caccia manualmente a sistema",
+      options:
+      [
+        {
+          name:'scegli-dungeon',
+          description:'Scegli il tuo dungeon',
+          type: ApplicationCommandOptionType.Number,
+          required:true,
+          choices:
+          Object.values(utils.dungeons).sort((a, b) => a.name.localeCompare(b.name)).map(item => ({
+            name: item.emoji+" "+item.name,
+            value: item.value,
+          }))
+        }
+      ]
+    },
   ];
 
   const rest = new REST({version:'10'}).setToken(process.env.TOKEN);

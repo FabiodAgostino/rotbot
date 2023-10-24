@@ -17,7 +17,9 @@ async function insertImages({arrayLink, author, idGuild, nameGuild,idCaccia})
         try {
         const collecttion = collection(firebaseConnect.db, "ImmaginiContest");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertImages OK");
     } catch (error) {
+        console.log("insertImages KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -44,8 +46,10 @@ async function getImages() {
             };
             array.push(object);
         });
+        console.log("getImages OK");
         return array;
     } catch (error) {
+        console.log("getImages KO");
         console.error("Si è verificato un errore durante la query:", error);
         throw error; 
     }

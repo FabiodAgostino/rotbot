@@ -12,7 +12,9 @@ async function insertServer({idGuild, name})
         try {
         const collecttion = collection(firebaseConnect.db, "ServerDiscord");
         const docRef = await addDoc(collecttion, dataDaInserire);
+        console.log("insertServer OK");
     } catch (error) {
+        console.log("insertServer KO");
         console.error("Error writing document: ", error);
     }
 }
@@ -34,8 +36,10 @@ async function getServer(guildId) {
             };
             array.push(object);
         });
+        console.log("getServer OK");
         return array;
     } catch (error) {
+        console.log("getServer KO");
         console.error("Si è verificato un errore durante la query:", error);
         throw error; 
     }
@@ -57,8 +61,10 @@ async function getServer(guildId) {
             };
             array.push(object);
         });
+        console.log("getAllServers OK");
         return array;
     } catch (error) {
+        console.log("getAllServers KO");
         console.error("Si è verificato un errore durante la query:", error);
         throw error; 
     }

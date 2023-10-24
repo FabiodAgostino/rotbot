@@ -5,6 +5,7 @@ const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js');
 const contestService = require('./firestore/contest.js'); 
 const memeService = require('./firestore/meme.js'); 
 const utils = require('./utils.js'); 
+const modals = require('./modals.js'); 
 const generics = require('./generics.js'); 
 const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder } = require('discord.js');
 
@@ -18,6 +19,7 @@ module.exports = {
       switch(interaction.commandName)
       {
         case "start-caccia": await this.startCaccia(interaction,guild,information); break;
+        case "insert-caccia-manuale": await this.insertCacciaContest(interaction,guild,information); break;
         case "set-classe": await this.setClasse(interaction,guild,information); break;
         case "set-type-user": await this.setSuperuser(interaction,guild,information); break;
         case "set-validatore": await this.setValidatori(interaction,guild,information); break;
@@ -25,9 +27,9 @@ module.exports = {
         case "insert-meme": await this.insertMeme(interaction,guild,information); break;
         case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
+        case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
-
       }
       return;
     },
@@ -66,6 +68,72 @@ module.exports = {
           ephemeral:true
         })
   },
+  async insertCacciaContest(interaction, guild, information) {
+    if (!information.isAdmin) {
+        await interaction.reply({ content: "Solo i ruoli settati come admin possono accedere a questa funzionalità! 😡", ephemeral: true });
+        return;
+    }
+    const nomeDungeon = utils.dungeons.filter(x => x.value == interaction.options.get('scegli-dungeon').value)[0].name;
+    if(!nomeDungeon)
+      return;
+
+    await interaction.showModal(modals.modaleStopCaccia(interaction.id));
+    const submitted = await interaction.awaitModalSubmit({
+      filter: async (i) => {
+          const filter =
+              i.user.id === interaction.user.id &&
+              i.customId === `modaleStopCaccia-${interaction.id}`;
+          if (filter) {
+              await i.deferReply({ephemeral:true});
+          }
+          return filter;
+      },
+      time: 100000,
+    }).catch(async x=>{
+          await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+          return;
+    });
+    if(submitted===null)
+      return;
+
+    if (submitted) {
+      const fields = submitted.fields;
+      const soldi=fields.getTextInputValue("soldi");
+      const frammenti=fields.getTextInputValue("frammenti");
+      const fama=fields.getTextInputValue("fama");
+      const nucleiFormidabili=fields.getTextInputValue("nucleiFormidabili");
+      const sangue=fields.getTextInputValue("sangue");
+
+      const newData = {
+        fama: fama,
+        monete: soldi,
+        frammenti: frammenti,
+        nuclei: nucleiFormidabili,
+        sangue: sangue,
+        finita:false}
+
+    try
+        {
+            const id=await cacceOrganizzate.insertCacciaTempoLoot({author:information.author,destination:nomeDungeon,guild:guild,messageId:"",channelId:""},true,newData);
+            const avanti = generics.creaButton(ButtonStyle.Success,"Avanti","step2-"+id);
+            if (submitted) {
+                await submitted.editReply({
+                    content:"Procedi nell'inserimento della caccia andando allo step 2! "+utils.getRandomEmojiFelici(),
+                    components:[avanti],
+                    ephemeral:true,
+                    fetchReply:true
+                });
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+    }
+  return;
+      
+
+},
   async setClasse(interaction,guild,information)
   {
     if(!information.isAdmin)
@@ -124,7 +192,6 @@ module.exports = {
     const { options } = interaction;
     const ruolo = options.getRole('ruolo');
     const tipoRuolo = interaction.options.get('tipologia-ruolo').value;
-
     try
     {
       const response=await ruoloTipoRuoloService.getRuoloTipoRuolo(guild.id, ruolo,tipoRuolo);
@@ -241,6 +308,23 @@ module.exports = {
       await interaction.editReply({
         content:"Ecco a te la lista dei meme del server! 😂",
         embeds:[result]
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+  },
+  async getMemeByWord(interaction,guild,information)
+  {
+    await interaction.deferReply({ ephemeral: true });   
+    const { options } = interaction;
+    const searchTerm = options.getString('meme');
+    const meme = await memeService.getMemeByText(guild.id,searchTerm);
+    try
+    {
+      await interaction.editReply({
+        content:meme+" 😂",
       })
     }
     catch(error)

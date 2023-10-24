@@ -31,20 +31,22 @@ module.exports = {
         return;
       }
 
-      await interaction.showModal(modals.sondaggioData());
+      await interaction.showModal(modals.sondaggioData(interaction.id));
 
       const submitted = await interaction.awaitModalSubmit({
-          time: 60000,
-          filter: i => i.user.id === interaction.user.id,
-        }).catch(error => {
-          console.error(error)
-          return null
-        })
-      if(submitted==null)
-      {
-        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        filter: async (i) => {
+            const filter =
+                i.user.id === interaction.user.id &&
+                i.customId === `sondaggioGenerico-${interaction.id}`;
+            return filter;
+        },
+        time: 100000,
+      }).catch(async x=>{
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+      });
+      if(submitted===null)
         return;
-      }
     
         const fields = submitted.fields;
         const data=fields.getTextInputValue("data");
@@ -106,20 +108,22 @@ module.exports = {
         return;
       }
 
-      await interaction.showModal(modals.sondaggioEventoDate());
+      await interaction.showModal(modals.sondaggioEventoDate(interaction.id));
 
       const submitted = await interaction.awaitModalSubmit({
-          time: 60000,
-          filter: i => i.user.id === interaction.user.id,
-        }).catch(error => {
-          console.error(error)
-          return null
-        })
-      if(submitted==null)
-      {
-        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        filter: async (i) => {
+            const filter =
+                i.user.id === interaction.user.id &&
+                i.customId === `sondaggioEventoDate-${interaction.id}`;
+            return filter;
+        },
+        time: 100000,
+      }).catch(async x=>{
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+      });
+      if(submitted===null)
         return;
-      }
     
         const fields = submitted.fields;
         const data=fields.getTextInputValue("meta");
@@ -181,19 +185,21 @@ module.exports = {
         return;
       }
 
-      await interaction.showModal(modals.sondaggioSiNo());
+      await interaction.showModal(modals.sondaggioSiNo(interaction.id));
       const submitted = await interaction.awaitModalSubmit({
-        time: 60000,
-        filter: i => i.user.id === interaction.user.id,
-      }).catch(error => {
-        console.error(error)
-        return null
-      })
-      if(submitted==null)
-      {
-        await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+        filter: async (i) => {
+            const filter =
+                i.user.id === interaction.user.id &&
+                i.customId === `sondaggioSiNo-${interaction.id}`;
+            return filter;
+        },
+        time: 100000,
+      }).catch(async x=>{
+            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            return;
+      });
+      if(submitted===null)
         return;
-      }
 
       const pollQuestion = submitted.fields.getTextInputValue("question");
       const exampleEmbed = new EmbedBuilder()

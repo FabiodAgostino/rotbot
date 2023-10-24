@@ -14,9 +14,11 @@ async function getDungeonDocuments()
                 array.push({id:doc.data().id,name:doc.data().name,emoji:doc.data().emoji});
         });
         } catch (error) {
+            console.log("getDungeonDocuments OK");
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
         const x= array.sort((a, b) => a.name.localeCompare(b.name));;
+        console.log("getDungeonDocuments KO");
         return x;
     }
 async function insertCacciaOrganizzata({author, destination, guild,idMessage, idChannel})
@@ -34,9 +36,11 @@ async function insertCacciaOrganizzata({author, destination, guild,idMessage, id
         finita: false,
       };
       try {
+        console.log("insertCacciaOrganizzata OK");
         const cacciaOrganizzataCollection = collection(firebaseConnect.db, "CacciaOrganizzata");
         const docRef = await addDoc(cacciaOrganizzataCollection, dataDaInserire);
     } catch (error) {
+        console.log("insertCacciaOrganizzata KO");
         console.error("Error writing document: ", error);
     }
 }

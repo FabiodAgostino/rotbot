@@ -16,12 +16,15 @@ module.exports = {
         if(!interaction.isButton())return;
 
         const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
-
+        console.log("aaaaaa")
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
         await this.buttonCaricaImmagine(interaction,information,guild,client);
         await this.buttonDividi(interaction, information, guild, client);
+        await this.buttonStep2(interaction, information, guild, client);
+        await this.buttonStep3(interaction, information, guild, client);
+
     },
     async buttonSondaggioSiNo(interaction,information)
     {
@@ -167,6 +170,7 @@ module.exports = {
     },
     async buttonCaricaImmagine(interaction,information,guild,client)
     {
+        console.log("aaaaaa")
         const splittedArray = interaction.customId.split('-');
 
         if(splittedArray[1]!=="image") return;
@@ -175,17 +179,6 @@ module.exports = {
             await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
-        const buttons = new ActionRowBuilder()
-              .addComponents(
-                new ButtonBuilder()
-                  .setLabel('Dividi')
-                  .setCustomId("button-dividi"+"-"+id+"-"+dataAttuale)
-                  .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                  .setLabel("Carica immagine")
-                  .setCustomId("button-image"+"-"+id+"-"+dataAttuale)
-                  .setStyle(ButtonStyle.Primary)
-              );
 
         const id = splittedArray[2];
         const dataAttuale = splittedArray[3];
@@ -196,20 +189,22 @@ module.exports = {
             await interaction.reply({content:"Questa caccia è già terminata! "+ utils.getRandomEmojiFelici(), ephemeral:true});
             return;
         }
-        await interaction.showModal(modals.modaleImmagini());
+        await interaction.showModal(modals.modaleImmagini(interaction.id));
         
         const submitted = await interaction.awaitModalSubmit({
-            time: 150000,
-            filter: i => i.user.id === interaction.user.id,
-          }).catch(error => {
-            console.error(error)
-            return null
-          })
-        if(submitted==null)
-        {
-            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleCaricaImmagini-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+          }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+          });
+          if(submitted===null)
             return;
-        }
 
         const fields = submitted.fields;
         const img1=fields.getTextInputValue("link1");
@@ -230,13 +225,12 @@ module.exports = {
         if(img5!=null && img5!='')
             arrayLink.push(img5)
 
-        const author = submitted.user.globalName==undefined ? submitted.user.username : submitted.user.globalName;
         const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+id+"-"+dataAttuale);
         try
         {
             if (submitted) {
                 await submitted.deferReply({ ephemeral: true }); 
-                await contestService.insertImages({arrayLink:arrayLink,author:author,idGuild:guild.id, nameGuild:guild.name,idCaccia:id})
+                await contestService.insertImages({arrayLink:arrayLink,author:information.author,idGuild:guild.id, nameGuild:guild.name,idCaccia:id})
                 const message=await submitted.editReply({
                     content:"Premi il tasto dividi quando vuoi cominciare la divisione!  "+ utils.getRandomEmojiFelici(),
                     components:[buttonDividi],
@@ -268,22 +262,23 @@ module.exports = {
             await interaction.reply({content:"Questa caccia è già terminata! "+ utils.getRandomEmojiFelici(), ephemeral:true});
             return;
         }
-        await interaction.showModal(modals.modaleStopCaccia());
+        await interaction.showModal(modals.modaleStopCaccia(interaction.id));
         const usersFromReaction=await cacceOrganizzateService.getUsersFromReaction(client,result[0].channelId,result[0].messageId,result[0].destination,guild.id,interaction);
 
         const submitted = await interaction.awaitModalSubmit({
-            time: 150000,
-            filter: i => i.user.id === interaction.user.id,
-          }).catch(error => {
-            console.error(error)
-            return null
-          })
-
-        if(submitted==null)
-        {
-            await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleStopCaccia-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+            }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+            });
+        if(submitted===null)
             return;
-        }
 
         const fields = submitted.fields;
         const soldi=fields.getTextInputValue("soldi");
@@ -318,19 +313,10 @@ module.exports = {
         {
             if (submitted) {
                 const message=await submitted.update({
-                    content:"... ⏬",
-                    embeds:[],
-                    components:[],
-                    fetchReply:true,
-                    ephemeral:false
-                });
-                await submitted.followUp({
-                    content:"@everyone I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
+                    content:"I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
                     embeds:[embeds],
                     components:[],
-                    fetchReply:true,
-                    ephemeral:false,
-                    allowedMentions:{parse:["everyone"]}
+                    fetchReply:true
                 });
                 await cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference, newData)
             }
@@ -340,6 +326,129 @@ module.exports = {
             console.log(error);
         }
         
+    },
+    async buttonStep2(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[0]!=="step2") return;
+        if(!information.isAdmin)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+            return;
+        }
+        const id = splittedArray[1];
+
+        await interaction.showModal(modals.modaleImmagini(interaction.id));
+        
+        const submitted = await interaction.awaitModalSubmit({
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleCaricaImmagini-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+          }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+          });
+          if(submitted===null)
+            return;
+
+        const fields = submitted.fields;
+        const img1=fields.getTextInputValue("link1");
+        const img2=fields.getTextInputValue("link2");
+        const img3=fields.getTextInputValue("link3");
+        const img4=fields.getTextInputValue("link4");
+        const img5=fields.getTextInputValue("link5");
+        let arrayLink = [];
+
+        if(img1!=null && img1!='')
+            arrayLink.push(img1)
+        if(img2!=null && img2!='')
+            arrayLink.push(img2)
+        if(img3!=null && img3!='')
+            arrayLink.push(img3)
+        if(img4!=null && img4!='')
+            arrayLink.push(img4)
+        if(img5!=null && img5!='')
+            arrayLink.push(img5)
+
+        try
+        {
+            await contestService.insertImages({arrayLink:arrayLink,author:information.author,idGuild:guild.id, nameGuild:guild.name,idCaccia:id})
+            const avanti = generics.creaButton(ButtonStyle.Primary,"Avanti","step3-"+id);
+            if (submitted) {
+                await submitted.update({
+                    content:"Procedi nell'inserimento della caccia andando allo step 3! "+utils.getRandomEmojiFelici(),
+                    components:[avanti],
+                    ephemeral:true,
+                    fetchReply:true
+                });
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+    return;
+    },
+    async buttonStep3(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[0]!=="step3") return;
+        if(!information.isAdmin)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+            return;
+        }
+        const id = splittedArray[1];
+
+        await interaction.showModal(modals.modaleStep3(interaction.id));
+        const submitted = await interaction.awaitModalSubmit({
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleStep3-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+          }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+          });
+          if(submitted===null)
+            return;
+
+        const fields = submitted.fields;
+        const tempo=fields.getTextInputValue("tempo");
+        var numPg=fields.getTextInputValue("numPg");
+        numPg = parseInt(numPg);
+
+        try
+        {
+            const newData = {
+                tempoManuale: tempo,
+                numPg:numPg,
+                finita: true,
+                stoppata:true}
+            const result=await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id);
+            await cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference,newData);
+            if (submitted) {
+                await submitted.update({
+                    content:"Hai terminato l'inserimento dei dati della caccia! "+utils.getRandomEmojiFelici(),
+                    components:[],
+                    ephemeral:true,
+                });
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+    return;
     }
 
 }
