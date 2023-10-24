@@ -317,15 +317,25 @@ module.exports = {
   },
   async getMemeByWord(interaction,guild,information)
   {
-    await interaction.deferReply({ ephemeral: true });   
     const { options } = interaction;
     const searchTerm = options.getString('meme');
     const meme = await memeService.getMemeByText(guild.id,searchTerm);
     try
     {
-      await interaction.editReply({
-        content:meme+" 😂",
-      })
+      if(meme==undefined)
+      {
+        await interaction.reply({
+          content:"Nessun meme contenente quella parola! "+utils.getRandomEmojiFelici(),
+          ephemeral:true
+        })
+      }
+      else
+      {
+        await interaction.reply({
+          content:meme+" 😂",
+          ephemeral:false
+        })
+      }
     }
     catch(error)
     {

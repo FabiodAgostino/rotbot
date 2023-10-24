@@ -92,7 +92,6 @@ async function getRandomMeme(guildId)
 {
     const array =await getAllMeme(guildId);
     const indiceCasuale = Math.floor(Math.random() * array.length);
-    console.log(indiceCasuale)
     return array[indiceCasuale].meme;
 }
 

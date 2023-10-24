@@ -31,7 +31,7 @@ client.on('ready', async () => {
 client.on(Events.InteractionCreate,async (interaction) =>{
   const guildName =client.guilds.cache.filter(x=> interaction.guildId ==x.id).first().name;
   const guild= {name:guildName, id:interaction.guildId};
-  console.log("Logger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date())+ " | "+interaction.commandName);
+  console.log("\nLogger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date())+ " | "+interaction.commandName + "\n");
 
   await eventCommands.executeCommandsEvent(interaction,guild);
   await polls.executePollsEvents(interaction,guild);

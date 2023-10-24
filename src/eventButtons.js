@@ -16,7 +16,7 @@ module.exports = {
         if(!interaction.isButton())return;
 
         const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
-        console.log("aaaaaa")
+        
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
@@ -170,7 +170,6 @@ module.exports = {
     },
     async buttonCaricaImmagine(interaction,information,guild,client)
     {
-        console.log("aaaaaa")
         const splittedArray = interaction.customId.split('-');
 
         if(splittedArray[1]!=="image") return;
