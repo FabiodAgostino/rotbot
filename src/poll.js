@@ -44,7 +44,7 @@ module.exports = {
             await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
             return;
       });
-      if(submitted===null)
+      if(submitted===undefined)
         return;
     
         const fields = submitted.fields;
@@ -121,7 +121,7 @@ module.exports = {
             await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
             return;
       });
-      if(submitted===null)
+      if(submitted===undefined)
         return;
     
         const fields = submitted.fields;
@@ -192,12 +192,12 @@ module.exports = {
                 i.customId === `sondaggioSiNo-${interaction.id}`;
             return filter;
         },
-        time: 100000,
+        time: 60000,
       }).catch(async x=>{
             await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
             return;
       });
-      if(submitted===null)
+      if(submitted===undefined)
         return;
 
       const pollQuestion = submitted.fields.getTextInputValue("question");
