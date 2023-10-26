@@ -11,12 +11,10 @@ const modals = require('./modals.js');
 
 const votedMembers = new Set();
 module.exports = {
-    async executeButtonsEvents(interaction,guild,client)
+    async executeButtonsEvents(interaction,guild,client,information)
     {
         if(!interaction.isButton())return;
 
-        const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
-        
         await this.buttonSondaggioSiNo(interaction,information);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);

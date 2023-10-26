@@ -10,11 +10,10 @@ const generics = require('./generics.js');
 const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder } = require('discord.js');
 
 module.exports = {
-    async executeCommandsEvent(interaction, guild)
+    async executeCommandsEvent(interaction, guild,information)
     {
       if(!interaction.isChatInputCommand()) return;
       
-      const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
 
       switch(interaction.commandName)
       {

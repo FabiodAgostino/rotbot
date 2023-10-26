@@ -15,6 +15,7 @@ const eventCommands = require('./eventCommands.js');
 const eventMessages = require('./eventMessages.js'); 
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
 const serverDiscordService = require('./firestore/serverDiscord.js'); 
+const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const commands = require('./commands.js'); 
 const utils = require('./utils.js'); 
 
@@ -31,11 +32,14 @@ client.on('ready', async () => {
 client.on(Events.InteractionCreate,async (interaction) =>{
   const guildName =client.guilds.cache.filter(x=> interaction.guildId ==x.id).first().name;
   const guild= {name:guildName, id:interaction.guildId};
-  console.log("\nLogger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date())+ " | "+interaction.commandName + "\n");
+  const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
 
-  await eventCommands.executeCommandsEvent(interaction,guild);
+  console.log("\nLogger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date())+ " | "+interaction.commandName 
+  +" | isAdmin: "+information.isAdmin +" | isUtente: "+information.isUtente +"\n");
+
+  await eventCommands.executeCommandsEvent(interaction,guild,information);
   await polls.executePollsEvents(interaction,guild);
-  await eventButtons.executeButtonsEvents(interaction,guild,client);
+  await eventButtons.executeButtonsEvents(interaction,guild,client,information);
 })
 
 client.on(Events.MessageCreate,async (message) =>{

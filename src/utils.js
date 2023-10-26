@@ -1,4 +1,4 @@
-const VERSION = "1.0.0-b05";
+const VERSION = "1.0.0-b06";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -19,6 +19,7 @@ const dungeons = [
     { name: 'Pirati non morti',value:16,emoji:"☠️" },
     { name: 'Damnagoth',value:17,emoji:"🧙‍♂️" },
     { name: 'Dinodonti',value:18,emoji:"🦕" },
+    { name: 'Zarr Vagor',value:19,emoji:"🪦" },
   ];
 
 const classiTM = 
