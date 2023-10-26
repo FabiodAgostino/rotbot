@@ -38,7 +38,7 @@ client.on(Events.InteractionCreate,async (interaction) =>{
   +" | isAdmin: "+information.isAdmin +" | isUtente: "+information.isUtente +"\n");
 
   await eventCommands.executeCommandsEvent(interaction,guild,information);
-  await polls.executePollsEvents(interaction,guild);
+  await polls.executePollsEvents(interaction,guild,information);
   await eventButtons.executeButtonsEvents(interaction,guild,client,information);
 })
 

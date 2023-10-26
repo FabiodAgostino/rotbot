@@ -9,10 +9,9 @@ const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
 
 
 module.exports = {
-    async executePollsEvents(interaction, guild)
+    async executePollsEvents(interaction, guild,information)
     {
       if(!interaction.isChatInputCommand()) return;
-      const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
       
       switch(interaction.commandName)
       {
