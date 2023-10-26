@@ -254,6 +254,16 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true });   
     const { options } = interaction;
     const meme = options.getString('meme');
+    
+    if(meme.includes("https://discord.com/channels/"))
+    {
+      await interaction.editReply({
+        content:"Stai provando ad inserire un tag ad un channel al posto di un'immagine! "+ utils.getRandomEmojiRisposta(),
+        ephemeral:true
+      });
+      return;
+    }
+
     try
     {
       await memeService.insertMeme({idGuild:guild.id, author:interaction.user.globalName,meme:meme})
