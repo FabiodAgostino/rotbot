@@ -307,16 +307,16 @@ module.exports = {
     const meme = (await memeService.getAllMeme(guild.id)).filter(x=> !x.meme.includes("http"))
     for(let i=0; i<meme.length;i++)
       embeds.push({
-        name:(i+1)+"- "+meme[i].meme,
+        name:(i+1)+"- "+meme[i].meme+"\n",
         value:"    ",})
 
+
     await interaction.deferReply({ ephemeral: true });   
-    const result= await generics.creaEmbeded("Lista dei meme", "", interaction,embeds);
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
     try
     {
       await interaction.editReply({
-        content:"Ecco a te la lista dei meme del server! 😂",
-        embeds:[result]
+        content:"Ecco a te la lista dei meme del server! 😂\n\n"+result
       })
     }
     catch(error)

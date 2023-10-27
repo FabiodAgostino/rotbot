@@ -86,17 +86,18 @@ module.exports =
             return null;
         }
       },
-    differenceBetweenTwoTimeStamp(date)
+    differenceBetweenTwoTimeStamp(date,dateFinish)
     {
-        const specificDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
-        const currentTimestamp = new Date();
-        const timeDifference = currentTimestamp-specificDate;
+        let dataInizioInMillisecondi = date.seconds * 1000 + date.nanoseconds / 1000000;
+        let dataFineInMillisecondi = dateFinish.seconds * 1000 + dateFinish.nanoseconds / 1000000;
 
-        const hours = Math.floor(timeDifference / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-        
-        return {hours:hours, minutes:minutes, seconds: seconds};
+        let differenzaInMillisecondi = dataFineInMillisecondi - dataInizioInMillisecondi;
+
+        let secondi = Math.floor((differenzaInMillisecondi / 1000) % 60);
+        let minuti = Math.floor((differenzaInMillisecondi / (1000 * 60)) % 60);
+        let ore = Math.floor((differenzaInMillisecondi / (1000 * 60 * 60)) % 24);
+
+        return {hours:ore, minutes:minuti, seconds: secondi};
     },
     trovaDataPiùRecente(arrayDocumenti) {
         return arrayDocumenti.reduce((dataRecente, documento) => {

@@ -71,7 +71,7 @@ async function getAllMeme(guildId) {
       console.log("getMemeByText OK");
       var result=await getAllMeme(guildId);
       result = result.map(x=> x.meme);
-      result = customSearch(result,searchTerm);
+      result = customSearch(result,searchTerm.toLowerCase());
       return result[0];
     } catch (error) {
         console.log("getMemeByText KO");
@@ -82,7 +82,7 @@ async function getAllMeme(guildId) {
 function customSearch(array, searchTerm) {
     const results = [];
     for (const item of array) {
-      if (item?.includes(searchTerm)) {
+      if (item?.toLowerCase().includes(searchTerm)) {
         results.push(item);
       }
     }

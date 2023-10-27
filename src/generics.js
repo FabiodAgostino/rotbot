@@ -49,7 +49,6 @@ module.exports =
                 value:"    ",
             })
         }
-        
         return exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle(title)

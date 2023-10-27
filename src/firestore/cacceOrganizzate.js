@@ -113,7 +113,8 @@ async function getCacceTempoLootDocument(guildId,id) {
               messageId:doc.data().messageId,
               reference: doc.ref,
               tempo:doc.data().tempo,
-              stoppata: doc.data().stoppata
+              stoppata: doc.data().stoppata,
+              dateFinish: doc.data().dateFinish
           };
           array.push(object);
       });

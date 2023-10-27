@@ -123,7 +123,6 @@ module.exports = {
             await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
-        const dataAttuale= new Date();
         const id = splittedArray[2];
 
         try
@@ -136,7 +135,8 @@ module.exports = {
             }
             const data = result[0];
             const newData = {
-                stoppata:true
+                stoppata:true,
+                dateFinish:new Date()
             }
             await cacceOrganizzateService.updateCacciaTempoLoot(data.reference,newData);
         }
@@ -150,11 +150,11 @@ module.exports = {
               .addComponents(
                 new ButtonBuilder()
                   .setLabel('Dividi')
-                  .setCustomId("button-dividi"+"-"+id+"-"+dataAttuale)
+                  .setCustomId("button-dividi"+"-"+id)
                   .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
                   .setLabel("Carica immagine")
-                  .setCustomId("button-image"+"-"+id+"-"+dataAttuale)
+                  .setCustomId("button-image"+"-"+id)
                   .setStyle(ButtonStyle.Primary)
               );
         
@@ -178,7 +178,6 @@ module.exports = {
         }
 
         const id = splittedArray[2];
-        const dataAttuale = splittedArray[3];
 
         const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
         if(!result[0])
@@ -222,7 +221,7 @@ module.exports = {
         if(img5!=null && img5!='')
             arrayLink.push(img5)
 
-        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+id+"-"+dataAttuale);
+        const buttonDividi=generics.creaButton(ButtonStyle.Success,"Dividi","button-dividi"+"-"+id);
         try
         {
             if (submitted) {
@@ -251,7 +250,6 @@ module.exports = {
         }
 
         const id = splittedArray[2];
-        const dataAttuale = splittedArray[3];
 
         const result=(await cacceOrganizzateService.getCacceTempoLootDocument(guild.id,id)).filter(x=> x.tempo==null);
         if(!result[0])
@@ -283,7 +281,7 @@ module.exports = {
         const fama=fields.getTextInputValue("fama");
         const nucleiFormidabili=fields.getTextInputValue("nucleiFormidabili");
         const sangue=fields.getTextInputValue("sangue");
-        const tempo = utils.differenceBetweenTwoTimeStamp(result[0].date);
+        const tempo = utils.differenceBetweenTwoTimeStamp(result[0].date, result[0].dateFinish);
 
         let embedFields = new Array();
         embedFields.push({name:"🕙 Tempo: __"+tempo.hours+"__ ora __"+tempo.minutes+"__ minuti __"+tempo.seconds+"__ secondi.", value:"    "})
@@ -294,7 +292,6 @@ module.exports = {
         embedFields.push( {name:"⚗️  Sangue: "+sangue, value:"     "})
 
         const newData = {
-            dateFinish: dataAttuale,
             userList: usersFromReaction.map(x=> x.username),
             userRole: usersFromReaction.map(x=> x.roles).filter(x=> x!=""),
             fama: fama,
@@ -310,10 +307,18 @@ module.exports = {
         {
             if (submitted) {
                 const message=await submitted.update({
+                    content:"Rendo la card pubblica 🔽",
+                    embeds:[],
+                    components:[],
+                    fetchReply:true,
+                    ephemeral:false
+                });
+                await submitted.followUp({
                     content:"I risultati verranno salvati su RotinielTools e sarà possibile visualizzarli accedendo alla propria area personale.",
                     embeds:[embeds],
                     components:[],
-                    fetchReply:true
+                    fetchReply:true,
+                    ephemeral:false
                 });
                 await cacceOrganizzateService.updateCacciaTempoLoot(result[0].reference, newData)
             }
