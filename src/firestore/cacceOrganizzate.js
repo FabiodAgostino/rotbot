@@ -134,7 +134,7 @@ async function insertCacciaTempoLoot({author, destination, guild, messageId,chan
         id: parseInt(id),
         author: author,
         destination: destination,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         guildName: guild.name,
         guildId: guild.id,
         messageId:messageId,

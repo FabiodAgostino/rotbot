@@ -1,5 +1,5 @@
 const { collection, query, where, getDocs,addDoc, orderBy, endAt,startAt} = require("firebase/firestore");
-
+const utils = require('../utils.js'); 
 
 async function insertMeme({idGuild, author, meme})
 {
@@ -7,7 +7,7 @@ async function insertMeme({idGuild, author, meme})
     const dataDaInserire = {
         idGuild: idGuild,
         author: author,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         meme: meme
         };
         try {
@@ -25,7 +25,7 @@ async function insertTicket({idGuild, author, type, text})
     const dataDaInserire = {
         idGuild: idGuild,
         user: author,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         messaggio: text,
         tipologia:type,
         id: crypto.randomUUID(),

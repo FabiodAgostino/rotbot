@@ -34,7 +34,7 @@ client.on(Events.InteractionCreate,async (interaction) =>{
   const guild= {name:guildName, id:interaction.guildId};
   const information = await ruoloTipoRuoloService.getGuardInformation(interaction,guild);
 
-  console.log("\nLogger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(new Date())+ " | "+interaction.commandName 
+  console.log("\nLogger: guild.name:"+guild.name+" | username:"+interaction.user?.username+" | userGlobal:"+interaction.user?.globalName+" | Orario:"+ utils.getHours(utils.getDateUTF1())+ " | "+interaction.commandName 
   +" | isAdmin: "+information.isAdmin +" | isUtente: "+information.isUtente +"\n");
 
   await eventCommands.executeCommandsEvent(interaction,guild,information);

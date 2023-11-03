@@ -96,6 +96,24 @@ const commands= [
       ]
     },
     {
+      name:"get-leaderboard",
+      description:"Ritorna la leaderboard dello speed-run contest",
+      options:
+      [
+        {
+          name:'scegli-dungeon',
+          description:'Scegli il dungeon',
+          type: ApplicationCommandOptionType.Number,
+          required:true,
+          choices:
+          Object.values(utils.dungeons).sort((a, b) => a.name.localeCompare(b.name)).map(item => ({
+            name: item.emoji+" "+item.name,
+            value: item.value,
+          }))
+        }
+      ]
+    },
+    {
       name:'set-classe',
       description:'Permette di settare classi inserendo il role specifico discord',
       options:

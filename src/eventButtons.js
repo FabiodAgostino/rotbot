@@ -22,7 +22,6 @@ module.exports = {
         await this.buttonDividi(interaction, information, guild, client);
         await this.buttonStep2(interaction, information, guild, client);
         await this.buttonStep3(interaction, information, guild, client);
-
     },
     async buttonSondaggioSiNo(interaction,information)
     {
@@ -136,7 +135,7 @@ module.exports = {
             const data = result[0];
             const newData = {
                 stoppata:true,
-                dateFinish:new Date()
+                dateFinish:utils.getDateUTF1()
             }
             await cacceOrganizzateService.updateCacciaTempoLoot(data.reference,newData);
         }
@@ -288,7 +287,7 @@ module.exports = {
         embedFields.push({name:"🪙  Monete: "+soldi, value:"    "})
         embedFields.push({name:"❄️  Frammenti: "+frammenti, value:"    "})
         embedFields.push({name:"⬆️  Fama: "+fama, value:"     "})
-        embedFields.push( {name:"🔮  Nuclei: "+nucleiFormidabili, value:"    "})
+        embedFields.push( {name:"🗡️  Armi 4/5: "+nucleiFormidabili, value:"    "})
         embedFields.push( {name:"⚗️  Sangue: "+sangue, value:"     "})
 
         const newData = {

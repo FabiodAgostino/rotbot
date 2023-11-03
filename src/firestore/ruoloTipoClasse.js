@@ -1,4 +1,5 @@
 const { collection, query, where, getDocs,addDoc} = require("firebase/firestore");
+const utils = require('../utils.js'); 
 
 async function getRuoloTipoClasse(guildId, role=null) 
     {
@@ -31,7 +32,7 @@ async function insertRuoloTipoclasse({role, tipoClasse, guild})
     const dataDaInserire = {
         role: role,
         tipoClasse: tipoClasse,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         guild: guild.name,
         guildId: guild.id
         };

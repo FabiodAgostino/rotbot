@@ -34,7 +34,7 @@ async function insertRuoloTipoRuolo({role, tipoRuolo, guild})
     const dataDaInserire = {
         role: role.name,
         tipoRuolo: tipoRuolo,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         guild: guild.name,
         guildId: guild.id,
         idRole:role.id
@@ -56,7 +56,7 @@ async function insertRuoloValidatore(user)
         username:user?.globalName==undefined ? user?.username : user?.globalName,
         idUser:user.id,
         isValidatore:true,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         };
         try {
         const collecttion = collection(firebaseConnect.db, "RuoloTipoRuolo");

@@ -1,4 +1,5 @@
 const { collection, query, where, getDocs,addDoc, getDoc,updateDoc} = require("firebase/firestore");
+const utils = require('../utils.js'); 
 
 async function insertImages({arrayLink, author, idGuild, nameGuild,idCaccia})
 {
@@ -11,7 +12,7 @@ async function insertImages({arrayLink, author, idGuild, nameGuild,idCaccia})
         images: arrayLink,
         inAttesaDiValidazione:true,
         validazione:false,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         idCacciaOrganizzataTempoLoot:idCaccia,
         };
         try {

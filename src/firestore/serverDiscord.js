@@ -1,5 +1,5 @@
 const { collection, query, where, getDocs,addDoc} = require("firebase/firestore");
-
+const utils = require('../utils.js'); 
 
 async function insertServer({idGuild, name})
 {
@@ -7,7 +7,7 @@ async function insertServer({idGuild, name})
     const dataDaInserire = {
         id: idGuild,
         name: name,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         };
         try {
         const collecttion = collection(firebaseConnect.db, "ServerDiscord");

@@ -27,6 +27,7 @@ module.exports = {
         case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
         case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
+        case "get-leaderboard": await this.getLeaderBoard(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
       }
@@ -428,5 +429,15 @@ module.exports = {
       });
 
   },
+  async getLeaderBoard(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    await interaction.reply({content:"Funzione non ancora implementata!", ephemeral:true});
+    return;
+  }
 }
 

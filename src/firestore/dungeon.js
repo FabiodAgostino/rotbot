@@ -28,7 +28,7 @@ async function insertCacciaOrganizzata({author, destination, guild,idMessage, id
         id: utils.idRnd(),
         author: author,
         destination: destination,
-        date: new Date(),
+        date: utils.getDateUTF1(),
         guild: guild.name,
         guildId: guild.id,
         messageId: idMessage,

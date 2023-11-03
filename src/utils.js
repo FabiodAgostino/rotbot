@@ -1,4 +1,4 @@
-const VERSION = "1.0.0-b06";
+const VERSION = "1.0.0-b07";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -73,7 +73,7 @@ module.exports =
         try
         {
             const [hours, minutes, seconds] = timeString.split(':').map(Number);
-            const date = new Date();
+            const date = utils.getDateUTF1();
             date.setHours(hours || 0);
             date.setMinutes(minutes || 0);
             date.setSeconds(seconds || 0);
@@ -142,5 +142,14 @@ module.exports =
     {
         if(type=="utente")
             return true;
-    }
+    },
+    getDateUTF1() {
+        let date = new Date();
+        let currentTime = date.getTime();
+        let offset = 60 * 60 * 1000; 
+        let timeInUTCPlus1 = currentTime + offset;
+        let dateInUTCPlus1 = new Date(timeInUTCPlus1);
+      
+        return dateInUTCPlus1;
+      }
 }

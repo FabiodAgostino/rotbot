@@ -109,8 +109,8 @@ function modaleStopCaccia(interactionId)
     
     const nucleiInfusi = new TextInputBuilder()
       .setCustomId('nucleiFormidabili')
-      .setLabel("🔮 Nuclei e nuclei formidabili")
-      .setPlaceholder("Inserisci qui i nuclei.")
+      .setLabel("🗡️ Armi 4/5")
+      .setPlaceholder("Inserisci qui il numero delle armi con rune superiori a 3.")
       .setRequired(false)
       .setStyle(TextInputStyle.Short);
     
