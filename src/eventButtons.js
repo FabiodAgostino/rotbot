@@ -466,6 +466,7 @@ module.exports = {
             await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
             return;
         }
+
         await interaction.showModal(modals.modaleInserisciSkills(interaction.id,splittedArray[1],splittedArray[2]));
 
         const submitted = await interaction.awaitModalSubmit({
@@ -528,7 +529,9 @@ module.exports = {
             {
                 try
                 {
-                    var result=await skillService.insertOrUpdateSkills({name:splittedArray[1],author:interaction.user.globalName, idGuild:guild.id,min:minValue, max:massimo });
+                    var nickname = interaction.member.nickname;
+                    var user = (nickname != undefined && nickname!="") ? nickname : interaction.user.globalName;
+                    var result=await skillService.insertOrUpdateSkills({name:splittedArray[1],author:user, idGuild:guild.id,min:minValue, max:massimo,idAuthor:interaction.user.id });
                  
                     await submitted.update({
                         content:result+utils.getRandomEmojiFelici(),

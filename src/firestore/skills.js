@@ -19,13 +19,15 @@ async function getAllSkills()
         });
         array.push({name:"Scovare nascondigli",emoji:"👁️",max:"100"});
         array.push({name:"Cercare tracce",emoji:"🐺",max:"100"});
+        array.push({name:"Scassinare",emoji:"🔓",max:"100"});
+        array.push({name:"Disarmare trappole",emoji:"💣",max:"100"});
 
         } catch (error) {
             console.log("getAllSkills KO");
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
         console.log("getAllSkills OK");
-        return array;
+        return array.sort(utils.confrontoPerNome);
     }
 
 async function getAllSkillsGuild(idGuild) 
@@ -52,12 +54,12 @@ async function getAllSkillsGuild(idGuild)
         return array;
     }
 
-async function getSingleSkillAuthor(idGuild,author,name) 
+async function getSingleSkillAuthor(idGuild,idAuthor,name) 
 {
     const firebaseConnect = require('./firebaseConnect.js');
     const collect = collection(firebaseConnect.db, "SkillUtenteDiscord");
 
-    let que = query(collect, where("idGuild","==",idGuild),where("author","==",author),where("name","==",name));
+    let que = query(collect, where("idGuild","==",idGuild),where("idAuthor","==",idAuthor),where("name","==",name));
 
     var array = new Array();
     try {
@@ -76,12 +78,12 @@ async function getSingleSkillAuthor(idGuild,author,name)
     return array;
 }
 
-async function getSkillsAuthor(idGuild,author) 
+async function getSkillsAuthor(idGuild,idAuthor) 
 {
     const firebaseConnect = require('./firebaseConnect.js');
     const collect = collection(firebaseConnect.db, "SkillUtenteDiscord");
 
-    let que = query(collect, where("idGuild","==",idGuild),where("author","==",author));
+    let que = query(collect, where("idGuild","==",idGuild),where("idAuthor","==",idAuthor));
 
     var array = new Array();
     try {
@@ -100,7 +102,7 @@ async function getSkillsAuthor(idGuild,author)
     return array;
 }
 
-async function insertSkill({name, author, idGuild, min,max})
+async function insertSkill({name, author, idGuild, min,max,idAuthor})
     {
         console.log(name,author,idGuild,min,max)
         const firebaseConnect = require('./firebaseConnect.js');
@@ -111,6 +113,7 @@ async function insertSkill({name, author, idGuild, min,max})
             name: name,
             min:min,
             max:max,
+            idAuthor:idAuthor
             };
             try {
             const collecttion = collection(firebaseConnect.db, "SkillUtenteDiscord");
@@ -148,9 +151,9 @@ async function updateSkill(newData,ref) {
     }
     }
 
-async function insertOrUpdateSkills({name, author, idGuild, min,max})
+async function insertOrUpdateSkills({name, author, idGuild, min,max,idAuthor})
 {
-    var data = await getSingleSkillAuthor(idGuild,author,name);
+    var data = await getSingleSkillAuthor(idGuild,idAuthor,name);
     if(data.length>0)
     {
         var newData = {name:name, author:author, idGuild:idGuild, min:min, max:max};
@@ -163,7 +166,7 @@ async function insertOrUpdateSkills({name, author, idGuild, min,max})
     }
     else
     {
-        var result = await insertSkill({name:name, author:author, idGuild:idGuild, min:min, max:max});
+        var result = await insertSkill({name:name, author:author, idGuild:idGuild, min:min, max:max, idAuthor:idAuthor});
         if(result)
             throw new Error("Errore");
         else

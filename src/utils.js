@@ -1,4 +1,4 @@
-const VERSION = "1.0.1-b01";
+const VERSION = "1.0.1-b02";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -60,6 +60,10 @@ const emojiLavorative =
     { name: 'Cucire',value:13,emoji:"🧵" },
     { name: 'Scovare nascondigli',value:14,emoji:"👁️" },
     { name: 'Cercare tracce',value:15,emoji:"🐺" },
+    { name: 'Scassinare',value:16,emoji:"🔓" },
+    { name: 'Disarmare trappole',value:17,emoji:"💣" },
+
+
 ]
 
 module.exports =
@@ -174,5 +178,18 @@ module.exports =
         let dateInUTCPlus1 = new Date(timeInUTCPlus1);
       
         return dateInUTCPlus1;
+      },
+    confrontoPerNome(a, b) {
+        const nomeA = a.name.toUpperCase(); // Ignora maiuscole/minuscole
+        const nomeB = b.name.toUpperCase();
+      
+        if (nomeA < nomeB) {
+          return -1;
+        }
+        if (nomeA > nomeB) {
+          return 1;
+        }
+      
+        return 0; // Nomi uguali
       }
 }

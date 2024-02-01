@@ -474,38 +474,6 @@ module.exports = {
           components:[button]
         });
     });
-    // await interaction.showModal(modals.modaleInserisciSkills(interaction.id,"beppe","100"));
-        
-    //     const submitted = await interaction.awaitModalSubmit({
-    //         filter: async (i) => {
-    //             const filter =
-    //                 i.user.id === interaction.user.id &&
-    //                 i.customId === `modaleInsertSkill-${interaction.id}`;
-    //             return filter;
-    //         },
-    //         time: 100000,
-    //       }).catch(async x=>{
-    //             await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
-    //             return;
-    //       });
-    //       if(submitted===undefined)
-    //         return;
-
-
-      // const emoji=dungeons.filter(x=> x.name==dungeonScelto)[0].emoji;
-      // const randomEmoji = utils.getRandomEmoji();
-      // var text="**Questa sera caccia a "+dungeonScelto+" vota: "+emoji+" se __ci sei__, "+randomEmoji+" se __non ci sei__**.";
-      // const message= await interaction.followUp({
-      //   content:"@everyone",
-      //   embeds:[generics.creaEmbeded("Caccia a "+dungeonScelto+".",text,interaction)],
-      //   fetchReply:true,
-      //   allowedMentions:{parse:["everyone"]}
-      // });
-      // message.react(emoji);
-      // message.react(randomEmoji);
-
-      // await dungeonsFirebase.insertCacciaOrganizzata({author:information.author,destination:dungeonScelto, guild:guild,idMessage:message.id,idChannel:interaction.channelId});
-
 
   },
   async showAllSkills(interaction,guild,information)
@@ -576,7 +544,7 @@ module.exports = {
   },
   async showMySkills(interaction,guild,information)
   {
-    const skills = await skillsService.getSkillsAuthor(guild.id, information.author);
+    const skills = await skillsService.getSkillsAuthor(guild.id, interaction.user.id);
     await interaction.deferReply({ ephemeral: true });
 
     if(skills.length==0)
