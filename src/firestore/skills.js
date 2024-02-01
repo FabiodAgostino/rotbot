@@ -17,6 +17,9 @@ async function getAllSkills()
             querySnapshot.forEach((doc) => {
                 array.push({name:doc.data().nome, emoji: doc.data().emoji, max: doc.data().max});
         });
+        array.push({name:"Scovare nascondigli",emoji:"👁️",max:"100"});
+        array.push({name:"Cercare tracce",emoji:"🐺",max:"100"});
+
         } catch (error) {
             console.log("getAllSkills KO");
             console.error("Errore durante il recupero dei documenti da Firestore:", error);

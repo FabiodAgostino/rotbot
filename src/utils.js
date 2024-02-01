@@ -58,7 +58,8 @@ const emojiLavorative =
     { name: 'Fare legna',value:11,emoji:"🪓" },
     { name: 'Erboristeria',value:12,emoji:"🌿" },
     { name: 'Cucire',value:13,emoji:"🧵" },
-
+    { name: 'Scovare nascondigli',value:14,emoji:"👁️" },
+    { name: 'Cercare tracce',value:15,emoji:"🐺" },
 ]
 
 module.exports =
