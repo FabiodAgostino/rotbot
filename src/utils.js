@@ -62,6 +62,8 @@ const emojiLavorative =
     { name: 'Cercare tracce',value:15,emoji:"🐺" },
     { name: 'Scassinare',value:16,emoji:"🔓" },
     { name: 'Disarmare trappole',value:17,emoji:"💣" },
+    { name: 'Identificare oggetti',value:18,emoji:"💫" },
+
 
 
 ]

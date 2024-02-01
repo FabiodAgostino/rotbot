@@ -21,6 +21,8 @@ async function getAllSkills()
         array.push({name:"Cercare tracce",emoji:"🐺",max:"100"});
         array.push({name:"Scassinare",emoji:"🔓",max:"100"});
         array.push({name:"Disarmare trappole",emoji:"💣",max:"100"});
+        array.push({name:"Identificare oggetti",emoji:"💫",max:"100"});
+
 
         } catch (error) {
             console.log("getAllSkills KO");
