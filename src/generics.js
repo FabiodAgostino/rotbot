@@ -21,6 +21,24 @@ module.exports =
 		const row = new ActionRowBuilder().addComponents(select);
         return row;
     },
+    creaLookupSkills(list, id, placeholder)
+    {
+        const select = new StringSelectMenuBuilder()
+			.setCustomId(id)
+			.setPlaceholder(placeholder)
+            .setMinValues(0)
+            .setMaxValues(list.length)
+			.addOptions(
+				list.map((value)=>
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(value.name)
+                        .setValue(value.name+"-"+value.max)
+                        .setEmoji(value.emoji)
+                )
+			);
+		const row = new ActionRowBuilder().addComponents(select);
+        return row;
+    },
     creaLookupSenzaEmoji({list, id, placeholder})
     {
         const select = new StringSelectMenuBuilder()
@@ -63,6 +81,7 @@ module.exports =
 
     creaButton(style, text,customId)
     {
+        console.log("dsadsads")
         const pollButtons = new ActionRowBuilder()
               .addComponents(
                 new ButtonBuilder()

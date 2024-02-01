@@ -186,6 +186,18 @@ const commands= [
         }
       ]
     },
+    {
+      name: 'insert-update-skills',
+      description: 'Permette di inserire o modificare punteggi skills lavorative o di supporto sul server'
+    },
+    {
+      name: 'show-skills-guild',
+      description: 'Permette di visualizzare le skills degli utenti del server'
+    },
+    {
+      name: 'show-my-skills',
+      description: 'Mostra le tue skills'
+    },
   ];
 
   const rest = new REST({version:'10'}).setToken(process.env.TOKEN);

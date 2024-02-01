@@ -2,7 +2,7 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini,modaleStep3 };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini,modaleStep3, modaleInserisciSkills };
 
 
 function sondaggioData(interactionId)
@@ -212,6 +212,33 @@ function modaleImmagini(interactionId)
 
 
     modal.addComponents(a,b,c,d,e);
+    return modal;
+}
+
+function modaleInserisciSkills(interactionId, name, max)
+{
+    const modal = new ModalBuilder()
+    .setCustomId('modaleInsertSkill-'+interactionId)
+    .setTitle('Skill '+name);
+
+    const min = new TextInputBuilder()
+      .setCustomId('min')
+      .setLabel("A quanto hai attualmente la skill?")
+      .setPlaceholder("95")
+      .setStyle(TextInputStyle.Short);
+
+    const massimo = new TextInputBuilder()
+      .setCustomId('max')
+      .setLabel("A quanto vuoi portare la skill?")
+      .setPlaceholder(max)
+      .setStyle(TextInputStyle.Short);
+    
+    const firstActionRow = new ActionRowBuilder().addComponents(min);
+    const secondActionRow = new ActionRowBuilder().addComponents(massimo);
+
+
+    modal.addComponents(firstActionRow,secondActionRow);
+
     return modal;
 }
 

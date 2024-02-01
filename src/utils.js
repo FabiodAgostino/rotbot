@@ -1,4 +1,4 @@
-const VERSION = "1.0.0-b07";
+const VERSION = "1.0.1-b01";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -43,11 +43,33 @@ const emojiFelici = [
     "😀", "😃", "😄", "😁", "😆","😊", "😇", "🥰",
 ]
 
+const emojiLavorative =
+[
+    { name: 'Falegnameria',value:1,emoji:"🪚"},
+    { name: 'Forgiare utensili',value:2,emoji:"🛠️" },
+    { name: 'Cartografia',value:3,emoji:"🗺️" },
+    { name: 'Cucinare',value:4,emoji:"🍲" },
+    { name: 'Forgiare armi',value:5,emoji:"🔨" },
+    { name: 'Cercare minerali',value:6,emoji:"⛏️" },
+    { name: 'Costruire archi',value:7,emoji:"🏹" },
+    { name: 'Alchimia',value:8,emoji:"⚗️" },
+    { name: 'Pescare',value:9,emoji:"🎣" },
+    { name: 'Agricoltura',value:10,emoji:"🌱" },
+    { name: 'Fare legna',value:11,emoji:"🪓" },
+    { name: 'Erboristeria',value:12,emoji:"🌿" },
+    { name: 'Cucire',value:13,emoji:"🧵" },
+
+]
+
 module.exports =
 {
     dungeons,
     classiTM,
     VERSION,
+    getEmojiLavorativeByName(name)
+    {
+        return emojiLavorative.filter(x=> x.name.toLowerCase()==name.toLowerCase())[0].emoji;
+    },
     convertTimeStampToDate(timestamp)
     {
         var data = new Date(timestamp);

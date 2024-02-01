@@ -2,6 +2,7 @@ require('dotenv').config({path:"../.env"});
 const cacceOrganizzate = require('./firestore/cacceOrganizzate.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
+const skillsService = require('./firestore/skills.js'); 
 const contestService = require('./firestore/contest.js'); 
 const memeService = require('./firestore/meme.js'); 
 const utils = require('./utils.js'); 
@@ -26,8 +27,11 @@ module.exports = {
         case "insert-meme": await this.insertMeme(interaction,guild,information); break;
         case "insert-segnalazione": await this.insertSegnalazione(interaction,guild,information); break;
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
+        case "show-skills-guild": await this.showAllSkills(interaction,guild,information); break;
+        case "show-my-skills": await this.showMySkills(interaction,guild,information); break;
         case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
         case "get-leaderboard": await this.getLeaderBoard(interaction,guild,information); break;
+        case "insert-update-skills": await this.insertOrUpdateSkills(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
       }
@@ -438,6 +442,188 @@ module.exports = {
     }
     await interaction.reply({content:"Funzione non ancora implementata!", ephemeral:true});
     return;
+  },
+  async insertOrUpdateSkills(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    
+    var skills = new Array();
+    skills=await skillsService.getAllSkills();
+    const reply=await interaction.reply({
+      content: 'Scegli la skills che vuoi aggiungere! '+ utils.getRandomEmojiFelici(),
+      components: [generics.creaLookupSkills(skills,"insertSkills",'Scegli una skills')],
+      ephemeral: true
+    });
+    
+
+    const collector = reply.createMessageComponentCollector({
+      componentType: ComponentType.StringSelect, 
+    });
+
+    collector.on("collect", async (collected) => {
+      const splittedArray = collected.values[0].split('-');
+      await interaction.deleteReply();
+        const button = generics.creaButton(ButtonStyle.Primary,"Avanti","buttonSkill-"+splittedArray[0]+"-"+splittedArray[1]);
+        const message= await interaction.followUp({
+          content:"Procedi all'inserimento o alla modifica della skill! "+utils.getRandomEmojiFelici(),
+          ephemeral:true,
+          components:[button]
+        });
+    });
+    // await interaction.showModal(modals.modaleInserisciSkills(interaction.id,"beppe","100"));
+        
+    //     const submitted = await interaction.awaitModalSubmit({
+    //         filter: async (i) => {
+    //             const filter =
+    //                 i.user.id === interaction.user.id &&
+    //                 i.customId === `modaleInsertSkill-${interaction.id}`;
+    //             return filter;
+    //         },
+    //         time: 100000,
+    //       }).catch(async x=>{
+    //             await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+    //             return;
+    //       });
+    //       if(submitted===undefined)
+    //         return;
+
+
+      // const emoji=dungeons.filter(x=> x.name==dungeonScelto)[0].emoji;
+      // const randomEmoji = utils.getRandomEmoji();
+      // var text="**Questa sera caccia a "+dungeonScelto+" vota: "+emoji+" se __ci sei__, "+randomEmoji+" se __non ci sei__**.";
+      // const message= await interaction.followUp({
+      //   content:"@everyone",
+      //   embeds:[generics.creaEmbeded("Caccia a "+dungeonScelto+".",text,interaction)],
+      //   fetchReply:true,
+      //   allowedMentions:{parse:["everyone"]}
+      // });
+      // message.react(emoji);
+      // message.react(randomEmoji);
+
+      // await dungeonsFirebase.insertCacciaOrganizzata({author:information.author,destination:dungeonScelto, guild:guild,idMessage:message.id,idChannel:interaction.channelId});
+
+
+  },
+  async showAllSkills(interaction,guild,information)
+  {
+    const skills = await skillsService.getAllSkillsGuild(guild.id);
+    await interaction.deferReply({ ephemeral: true });
+
+    if(skills.length==0)
+    {
+      try
+      {
+        await interaction.editReply({
+          content:"Questo server non ha skills registrate! "+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+    let gruppiPerNome = {};
+    skills.forEach(obj => {
+      if (!gruppiPerNome[obj.name]) {
+        gruppiPerNome[obj.name] = [obj];
+      } else {
+        gruppiPerNome[obj.name].push(obj);
+      }
+    });
+    
+    let arrayDiArray = Object.values(gruppiPerNome);
+    var i = 0;
+    var embeds = [];
+    
+    arrayDiArray.forEach(array => {
+      var nameSkill = array[0].name;
+      var emoji = utils.getEmojiLavorativeByName(nameSkill);
+      nameSkill+=" "+emoji;
+
+      var list = ""; 
+    
+      array.forEach(obj => {
+        if(parseInt(obj.min)<parseInt(obj.max))
+          list += obj.author + ": " + obj.min + " -> " + obj.max + " \n";
+        else
+          list += obj.author + ": " + obj.min + " \n";
+      });
+    
+      embeds.push({
+        name: nameSkill + ":\n" + list + "\n",
+        value: "    ",
+      });
+      i++;
+    });
+    
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      await interaction.editReply({
+        content:"Ecco a te la lista delle skills di gilda! "+utils.getRandomEmojiFelici()+"\n\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+  },
+  async showMySkills(interaction,guild,information)
+  {
+    const skills = await skillsService.getSkillsAuthor(guild.id, information.author);
+    await interaction.deferReply({ ephemeral: true });
+
+    if(skills.length==0)
+    {
+      try
+      {
+        await interaction.editReply({
+          content:"Non hai registrato nessuna skill! "+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+    var embeds = [];
+    skills.forEach(obj=>{
+      var emoji=utils.getEmojiLavorativeByName(obj.name);
+      if(parseInt(obj.min)<parseInt(obj.max))
+      {
+        embeds.push({
+          name: obj.name +" "+emoji+": " + + obj.min + " -> " + obj.max + " \n\n",
+          value: "    ",
+        });
+      }
+      else
+      {
+        embeds.push({
+          name: obj.name +" "+emoji+": " + + obj.min+" \n\n",
+          value: "    ",
+        });
+      }
+    });
+
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      await interaction.editReply({
+        content:"La tua lista delle skills! "+utils.getRandomEmojiFelici()+"\n\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
   }
 }
 

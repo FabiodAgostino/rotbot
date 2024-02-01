@@ -1,6 +1,7 @@
 const {ButtonInteraction, ButtonStyle,ActionRowBuilder, ButtonBuilder} = require("discord.js")
 const cacceOrganizzateService = require("./firestore/cacceOrganizzate.js")
 const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
+const skillService = require("./firestore/skills.js")
 const contestService = require("./firestore/contest.js")
 
 
@@ -22,6 +23,10 @@ module.exports = {
         await this.buttonDividi(interaction, information, guild, client);
         await this.buttonStep2(interaction, information, guild, client);
         await this.buttonStep3(interaction, information, guild, client);
+        await this.buttonStep3(interaction, information, guild, client);
+        await this.buttonInsertSkill(interaction, information, guild, client);
+
+
     },
     async buttonSondaggioSiNo(interaction,information)
     {
@@ -450,6 +455,101 @@ module.exports = {
             console.log(error);
         }
     return;
+    },
+    async buttonInsertSkill(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[0]!=="buttonSkill") return;
+        if(!information.isUtente)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+            return;
+        }
+        await interaction.showModal(modals.modaleInserisciSkills(interaction.id,splittedArray[1],splittedArray[2]));
+
+        const submitted = await interaction.awaitModalSubmit({
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleInsertSkill-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+          }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+          });
+          if(submitted===undefined)
+            return;
+
+        const fields = submitted.fields;
+        const min=fields.getTextInputValue("min");
+        const massimo=fields.getTextInputValue("max");
+        const massimoStabilito = parseInt(splittedArray[2]);
+        try
+        {
+            let minValue = parseInt(min);
+            let maxValue = parseInt(massimo);
+            
+            if(isNaN(minValue) || isNaN(maxValue))
+            {
+                await submitted.update({
+                    content:"Sono accettati solo valori numerici! "+utils.getRandomEmojiFelici(),
+                    components:[],
+                    ephemeral:true,
+                });
+            }
+            else if((minValue>maxValue) || (minValue<0 || maxValue<0))
+            {
+                await submitted.update({
+                    content:"Stai tentando di fregarmi? "+utils.getRandomEmojiRisposta(),
+                    components:[],
+                    ephemeral:true,
+                });
+            }
+            else if(maxValue>200)
+            {
+                await submitted.update({
+                    content:"Non esistono skills che arrivano a "+maxValue+"! "+utils.getRandomEmojiRisposta(),
+                    components:[],
+                    ephemeral:true,
+                });
+            }
+            else if(maxValue>massimoStabilito)
+            {
+                await submitted.update({
+                    content:"Questa skill non arriva a "+maxValue+"! "+utils.getRandomEmojiRisposta(),
+                    components:[],
+                    ephemeral:true,
+                });
+            }
+            else
+            {
+                try
+                {
+                    var result=await skillService.insertOrUpdateSkills({name:splittedArray[1],author:interaction.user.globalName, idGuild:guild.id,min:minValue, max:massimo });
+                 
+                    await submitted.update({
+                        content:result+utils.getRandomEmojiFelici(),
+                        components:[],
+                        ephemeral:true,
+                    });
+                }
+                
+                catch(errore)
+                {
+                    await submitted.update({
+                        content:"bro errore senti ioridion! "+utils.getRandomEmojiFelici(),
+                        components:[],
+                        ephemeral:true,
+                    });
+                }
+            }
+        }catch(error)
+        {
+            console.log(error)
+        }
     }
 
 }
