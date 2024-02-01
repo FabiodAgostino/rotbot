@@ -8,8 +8,6 @@ module.exports =
         const select = new StringSelectMenuBuilder()
 			.setCustomId(id)
 			.setPlaceholder(placeholder)
-            .setMinValues(0)
-            .setMaxValues(list.length)
 			.addOptions(
 				list.map((value)=>
                     new StringSelectMenuOptionBuilder()
@@ -26,8 +24,6 @@ module.exports =
         const select = new StringSelectMenuBuilder()
 			.setCustomId(id)
 			.setPlaceholder(placeholder)
-            .setMinValues(0)
-            .setMaxValues(list.length)
 			.addOptions(
 				list.map((value)=>
                     new StringSelectMenuOptionBuilder()
@@ -44,8 +40,6 @@ module.exports =
         const select = new StringSelectMenuBuilder()
 			.setCustomId(id)
 			.setPlaceholder(placeholder)
-            .setMinValues(0)
-            .setMaxValues(list.length)
 			.addOptions(
 				list.map((value)=>
                     new StringSelectMenuOptionBuilder()
