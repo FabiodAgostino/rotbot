@@ -30,7 +30,7 @@ async function getAllSkills()
         }
         console.log("getAllSkills OK");
         return array.sort(utils.confrontoPerNome);
-    }
+}
 
 async function getAllSkillsGuild(idGuild) 
     {
@@ -54,7 +54,7 @@ async function getAllSkillsGuild(idGuild)
         }
         console.log("getAllSkillsGuild OK");
         return array;
-    }
+}
 
 async function getSingleSkillAuthor(idGuild,idAuthor,name) 
 {
@@ -104,6 +104,29 @@ async function getSkillsAuthor(idGuild,idAuthor)
     return array;
 }
 
+async function getAuthorsBySkill(idGuild,skill) 
+{
+    const firebaseConnect = require('./firebaseConnect.js');
+    const collect = collection(firebaseConnect.db, "SkillUtenteDiscord");
+
+    let que = query(collect, where("idGuild","==",idGuild),where("name","==",skill));
+
+    var array = new Array();
+    try {
+        var array = new Array();
+
+        const querySnapshot = await getDocs(que);
+        
+        querySnapshot.forEach((doc) => {
+            array.push({author:doc.data().author, name: doc.data().name, min: doc.data().min,max: doc.data().max, ref:doc.ref});
+    });
+    } catch (error) {
+        console.log("getAuthorsBySkill KO");
+        console.error("Errore durante il recupero dei documenti da Firestore:", error);
+    }
+    console.log("getAuthorsBySkill OK");
+    return array;
+}
 async function insertSkill({name, author, idGuild, min,max,idAuthor})
     {
         console.log(name,author,idGuild,min,max)
@@ -127,8 +150,9 @@ async function insertSkill({name, author, idGuild, min,max,idAuthor})
             console.error("Error writing document: ", error);
             return true;
         }
-    }
-async function updateSkill(newData,ref) {
+}
+async function updateSkill(newData,ref) 
+{
     try {
         const documentSnapshot = await getDoc(ref);
     
@@ -151,7 +175,7 @@ async function updateSkill(newData,ref) {
         console.error("Errore durante l'aggiornamento del documento:", error);
         return false;
     }
-    }
+}
 
 async function insertOrUpdateSkills({name, author, idGuild, min,max,idAuthor})
 {
@@ -176,4 +200,4 @@ async function insertOrUpdateSkills({name, author, idGuild, min,max,idAuthor})
     }
 }
     
-module.exports = {getAllSkills,insertSkill,insertOrUpdateSkills,getAllSkillsGuild,getSkillsAuthor}
+module.exports = {getAllSkills,insertSkill,insertOrUpdateSkills,getAllSkillsGuild,getSkillsAuthor,getAuthorsBySkill}

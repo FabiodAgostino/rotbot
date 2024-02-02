@@ -1,4 +1,4 @@
-const VERSION = "1.0.1-b02";
+const VERSION = "1.0.1-b03";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -73,6 +73,7 @@ module.exports =
     dungeons,
     classiTM,
     VERSION,
+    emojiLavorative,
     getEmojiLavorativeByName(name)
     {
         return emojiLavorative.filter(x=> x.name.toLowerCase()==name.toLowerCase())[0].emoji;

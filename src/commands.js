@@ -192,11 +192,38 @@ const commands= [
     },
     {
       name: 'show-skills-guild',
-      description: 'Permette di visualizzare le skills degli utenti del server'
+      description: 'Permette di visualizzare le skills degli utenti del server',
+      options:
+      [
+        {
+          name:"user",
+          description:"L'utente di cui vuoi vedere le skills",
+          required:false,
+          type: ApplicationCommandOptionType.Mentionable
+        }
+      ]
     },
     {
       name: 'show-my-skills',
-      description: 'Mostra le tue skills'
+      description: 'Mostra le tue skills',
+    },
+    {
+      name:"show-utenti-by-lavorativa",
+      description:"Mostra gli utenti che possiedono una specifica lavorativa con il dettaglio del valore della skill",
+      options:
+      [
+        {
+          name:'scegli-lavorativa',
+          description:'Scegli la lavorativa',
+          type: ApplicationCommandOptionType.Number,
+          required:true,
+          choices:
+          Object.values(utils.emojiLavorative).sort((a, b) => a.name.localeCompare(b.name)).map(item => ({
+            name: item.emoji+" "+item.name,
+            value: item.value,
+          }))
+        }
+      ]
     },
   ];
 

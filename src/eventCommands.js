@@ -29,6 +29,7 @@ module.exports = {
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
         case "show-skills-guild": await this.showAllSkills(interaction,guild,information); break;
         case "show-my-skills": await this.showMySkills(interaction,guild,information); break;
+        case "show-utenti-by-lavorativa": await this.showUtentiByLavorativa(interaction,guild,information); break;
         case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
         case "get-leaderboard": await this.getLeaderBoard(interaction,guild,information); break;
         case "insert-update-skills": await this.insertOrUpdateSkills(interaction,guild,information); break;
@@ -479,7 +480,6 @@ module.exports = {
   async showAllSkills(interaction,guild,information)
   {
     const skills = await skillsService.getAllSkillsGuild(guild.id);
-    await interaction.deferReply({ ephemeral: true });
 
     if(skills.length==0)
     {
@@ -495,6 +495,17 @@ module.exports = {
       }
       return;
     }
+
+    const { options } = interaction;
+    const user = options.getUser('user');
+
+    if(user!=undefined)
+    {
+      await this.showMySkills(interaction,guild,information,user.id, user.globalName);
+      return;
+    }
+    await interaction.deferReply({ ephemeral: true });
+
 
     let gruppiPerNome = {};
     skills.forEach(obj => {
@@ -524,7 +535,7 @@ module.exports = {
       });
     
       embeds.push({
-        name: nameSkill + ":\n" + list + "\n",
+        name: "**"+nameSkill + "**:\n" + list + "\n",
         value: "    ",
       });
       i++;
@@ -542,17 +553,19 @@ module.exports = {
       console.log(error);
     }
   },
-  async showMySkills(interaction,guild,information)
+  async showMySkills(interaction,guild,information,idUser,author)
   {
-    const skills = await skillsService.getSkillsAuthor(guild.id, interaction.user.id);
+    userId= idUser!=undefined ? idUser : interaction.user.id;
+    const skills = await skillsService.getSkillsAuthor(guild.id, userId);
     await interaction.deferReply({ ephemeral: true });
 
     if(skills.length==0)
     {
       try
       {
+        var message = idUser!= undefined ? author+" non ha alcuna skill registrata! " : "Non hai registrato nessuna skill! ";
         await interaction.editReply({
-          content:"Non hai registrato nessuna skill! "+utils.getRandomEmojiFelici()+"\n\n"
+          content:message+utils.getRandomEmojiFelici()+"\n\n"
         })
       }
       catch(error)
@@ -568,14 +581,75 @@ module.exports = {
       if(parseInt(obj.min)<parseInt(obj.max))
       {
         embeds.push({
-          name: obj.name +" "+emoji+": " + + obj.min + " -> " + obj.max + " \n\n",
+          name: "**"+obj.name +"** "+emoji+": " + + obj.min + " -> " + obj.max + " \n\n",
           value: "    ",
         });
       }
       else
       {
         embeds.push({
-          name: obj.name +" "+emoji+": " + + obj.min+" \n\n",
+          name: "**"+obj.name +"** "+emoji+": " + + obj.min+" \n\n",
+          value: "    ",
+        });
+      }
+    });
+
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      var message = idUser!= undefined ? "Ecco la lista delle skills di **"+author+"**! " : "La tua lista delle skills! ";
+      await interaction.editReply({
+        content:message+utils.getRandomEmojiFelici()+"\n\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+  },
+  async showUtentiByLavorativa(interaction,guild,information)
+  {
+
+    const nomeLavorativa = utils.emojiLavorative.filter(x => x.value == interaction.options.get('scegli-lavorativa').value)[0].name;
+
+    if(!nomeLavorativa)
+      return;
+
+    const skills = await skillsService.getAuthorsBySkill(guild.id, nomeLavorativa);
+    await interaction.deferReply({ ephemeral: true });
+
+    if(skills.length==0)
+    {
+      try
+      {
+        await interaction.editReply({
+          content:"Questo server non ha utenti con la skill "+nomeLavorativa+" registrata! "+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+    var embeds = [];
+    skills.forEach(obj=>{
+      var emoji=utils.getEmojiLavorativeByName(obj.name);
+      if(embeds.length==0)
+        embeds.push({name:"Utenti che possiedono la skill **"+nomeLavorativa+emoji+"**\n\n", value:"         "});
+
+      if(parseInt(obj.min)<parseInt(obj.max))
+      {
+        embeds.push({
+          name: "**"+obj.author +"**: " + + obj.min + " -> " + obj.max + " \n",
+          value: "    ",
+        });
+      }
+      else
+      {
+        embeds.push({
+          name: "**"+obj.author+"**: " + + obj.min+" \n",
           value: "    ",
         });
       }
@@ -585,13 +659,14 @@ module.exports = {
     try
     {
       await interaction.editReply({
-        content:"La tua lista delle skills! "+utils.getRandomEmojiFelici()+"\n\n"+result
+        content:"\n"+result
       })
     }
     catch(error)
     {
       console.log(error);
     }
+
   }
 }
 
