@@ -3,6 +3,7 @@ const cacceOrganizzate = require('./firestore/cacceOrganizzate.js');
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
 const ruoloTipoClasseService = require('./firestore/ruoloTipoClasse.js'); 
 const skillsService = require('./firestore/skills.js'); 
+const vendorService = require('./firestore/utenteVendor.js'); 
 const contestService = require('./firestore/contest.js'); 
 const memeService = require('./firestore/meme.js'); 
 const utils = require('./utils.js'); 
@@ -33,6 +34,10 @@ module.exports = {
         case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
         case "get-leaderboard": await this.getLeaderBoard(interaction,guild,information); break;
         case "insert-update-skills": await this.insertOrUpdateSkills(interaction,guild,information); break;
+        case "insert-update-vendor": await this.insertOrUpdateVendor(interaction,guild,information); break;
+        case "show-vendor-guild": await this.showAllVendor(interaction,guild,information); break;
+        case "show-my-vendor": await this.showMyVendor(interaction,guild,information); break;
+        case "show-vendor-by-categoria": await this.showVendorByCategoria(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
       }
@@ -501,7 +506,8 @@ module.exports = {
 
     if(user!=undefined)
     {
-      await this.showMySkills(interaction,guild,information,user.id, user.globalName);
+      var username = user.globalName == undefined ? user.username : user.globalName;
+      await this.showMySkills(interaction,guild,information,user.id, username);
       return;
     }
     await interaction.deferReply({ ephemeral: true });
@@ -667,6 +673,249 @@ module.exports = {
       console.log(error);
     }
 
-  }
+  },
+  async insertOrUpdateVendor(interaction,guild,information)
+  {
+    if(!information.isUtente)
+    {
+      await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+      return;
+    }
+    
+    var categorie = new Array();
+    categorie= utils.getCategorieVendor();
+    const reply=await interaction.reply({
+      content: 'Scegli le categorie che vuoi aggiungere al vendor! '+ utils.getRandomEmojiFelici(),
+      components: [generics.creaLookupVendor(categorie,"insertVendor",'Scegli una o più categorie')],
+      ephemeral: true
+    });
+    
+
+    const collector = reply.createMessageComponentCollector({
+      componentType: ComponentType.StringSelect, 
+    });
+
+    collector.on("collect", async (collected) => {
+      var nickname = interaction.member.nickname;
+      var user = (nickname != undefined && nickname!="") ? nickname : interaction.user.globalName;
+      var id=await vendorService.insertOrUpdateVendor({list:collected.values,owner:user,idOwner:interaction.user.id,idGuild:guild.id, name:"temp"})
+      var message = utils.isNumber(id) ? "Continua l'inserimento del vendor! " : "Continua la modifica del vendor! ";
+      await interaction.deleteReply();
+      if(utils.isNumber(id))
+        var button = generics.creaButton(ButtonStyle.Primary,"Avanti","buttonVendor-"+id);
+      else
+        var button = generics.creaButton(ButtonStyle.Success,"Modifica","buttonVendor-"+interaction.user.id+"-u");
+        
+        await interaction.followUp({
+          content:message+utils.getRandomEmojiFelici(),
+          ephemeral:true,
+          components:[button]
+        });
+    });
+
+  },
+  async showAllVendor(interaction, guild, information)
+  {
+    const vendors = await vendorService.getAllVendorGuild(guild.id);
+    if(vendors.length==0)
+    {
+      try
+      {
+        await interaction.editReply({
+          content:"Questo server non ha vendor registrati! "+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+    const { options } = interaction;
+    const user = options.getUser('user');
+
+    if(user!=undefined)
+    {
+      var username = user.globalName == undefined ? user.username : user.globalName;
+      await this.showMyVendor(interaction,guild,information,user.id, username);
+      return;
+    }
+    await interaction.deferReply({ ephemeral: true });
+
+
+    let gruppiPerNome = {};
+    vendors.forEach(obj => {
+      if (!gruppiPerNome[obj.name]) {
+        gruppiPerNome[obj.name] = [obj];
+      } else {
+        gruppiPerNome[obj.name].push(obj);
+      }
+    });
+    
+    let arrayDiArray = Object.values(gruppiPerNome);
+    var embeds = [];
+    var list = [];
+    var listCategory = [];
+    arrayDiArray.forEach(array => {
+      array.forEach(obj => {
+        obj.list = obj.list.sort();
+        obj.list.forEach(category=>{
+          var cat=utils.categorieVendor.filter(x=> category==x.name)[0];
+          listCategory.push("* "+cat.name+" "+cat.emoji+"\n");
+        })
+        list += "### "+obj.owner + " ("+obj.name+")"+"\n"+"__Merce venduta__:\n"+listCategory;
+
+        embeds.push({
+          name: list + "\n",
+          value: "    ",
+        });
+        listCategory=[];
+        list=[];
+      });
+      });
+    
+     
+    
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      await interaction.editReply({
+        content:"Ecco a te la lista dei vendor di gilda! "+utils.getRandomEmojiFelici()+"\n\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+  },
+  async showMyVendor(interaction,guild,information,idOwner,owner)
+  {
+    ownerId= idOwner!=undefined ? idOwner : interaction.user.id;
+    const vendor = await vendorService.getVendorAuthor({idGuild:guild.id, idOwner:ownerId});
+    await interaction.deferReply({ ephemeral: true });
+
+    if(vendor==undefined)
+    {
+      try
+      {
+        var message = ownerId!= undefined ? owner+" non ha alcun vendor registrato! " : "Non hai registrato nessun vendor! ";
+        await interaction.editReply({
+          content:message+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+
+    
+    var embeds = [];
+    var list = [];
+    var listCategory = [];
+
+    vendor.list.forEach(category=>{
+      var cat=utils.categorieVendor.filter(x=> category==x.name)[0];
+      listCategory.push("* "+cat.name+" "+cat.emoji+"\n");
+    })
+    list += "### "+vendor.owner + " ("+vendor.name+")"+"\n"+"__Merce venduta__:\n"+listCategory;
+
+    embeds.push({
+      name: list + "\n",
+      value: "    ",
+    });
+    listCategory=[];
+    list=[];
+
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      var message = idOwner!= undefined ? "Ecco a te il vendor di **"+owner+"**! " : "Ecco il tuo vendor! ";
+      await interaction.editReply({
+        content:message+utils.getRandomEmojiFelici()+"\n\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+  },
+  async showVendorByCategoria(interaction,guild,information)
+  {
+    const nomeCategoria = utils.categorieVendor.filter(x => x.value == interaction.options.get('scegli-categoria').value)[0].name;
+
+    if(!nomeCategoria)
+      return;
+
+    const vendors = await vendorService.getVendorByCategoria(guild.id, nomeCategoria);
+    await interaction.deferReply({ ephemeral: true });
+
+    if(vendors.length==0)
+    {
+      try
+      {
+        await interaction.editReply({
+          content:"Questo server non ha vendor con la categoria "+nomeCategoria+" registrata! "+utils.getRandomEmojiFelici()+"\n\n"
+        })
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+      return;
+    }
+
+    let gruppiPerNome = {};
+    vendors.forEach(obj => {
+      if (!gruppiPerNome[obj.name]) {
+        gruppiPerNome[obj.name] = [obj];
+      } else {
+        gruppiPerNome[obj.name].push(obj);
+      }
+    });
+    
+    let arrayDiArray = Object.values(gruppiPerNome);
+    var embeds = [];
+    var list = [];
+    var listCategory = [];
+    arrayDiArray.forEach(array => {
+      array.forEach(obj => {
+        obj.list = obj.list.sort();
+        obj.list.forEach(category=>{
+          var cat=utils.categorieVendor.filter(x=> category==x.name)[0];
+          if(cat.name!=nomeCategoria)
+            listCategory.push("* "+cat.name+" "+cat.emoji+"\n");
+          else
+            listCategory.push("* **__"+cat.name+"__** "+cat.emoji+"\n");
+
+        })  
+        list += "### "+obj.owner + " ("+obj.name+")"+"\n"+"__Merce venduta__:\n"+listCategory;
+
+        embeds.push({
+          name: list + "\n",
+          value: "    ",
+        });
+        listCategory=[];
+        list=[];
+      });
+      });
+    
+
+    const result = embeds.map(x => x.name).toString().replace(/,/g, "");
+    try
+    {
+      await interaction.editReply({
+        content:"\n"+result
+      })
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
+
+  },
 }
 

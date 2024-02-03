@@ -2,7 +2,7 @@ require('dotenv').config({path:"../.env"});
 const { ModalBuilder, ActionRowBuilder,
   TextInputBuilder,TextInputStyle, StringSelectMenuBuilder,StringSelectMenuOptionBuilder } = require('discord.js');
 
-module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini,modaleStep3, modaleInserisciSkills };
+module.exports = { sondaggioData, sondaggioSiNo,modaleStopCaccia,sondaggioEventoDate,modaleImmagini,modaleStep3, modaleInserisciSkills, modaleInserisciVendor };
 
 
 function sondaggioData(interactionId)
@@ -238,6 +238,26 @@ function modaleInserisciSkills(interactionId, name, max)
 
 
     modal.addComponents(firstActionRow,secondActionRow);
+
+    return modal;
+}
+
+function modaleInserisciVendor(interactionId, nameVendor)
+{
+    const modal = new ModalBuilder()
+    .setCustomId('modaleInsertVendor-'+interactionId)
+    .setTitle('Nome vendor');
+
+    const min = new TextInputBuilder()
+      .setCustomId('nome')
+      .setLabel("Come si chiama il vendor?")
+      .setStyle(TextInputStyle.Short);
+    if(nameVendor!="temp")
+      min.setValue(nameVendor);
+
+    const firstActionRow = new ActionRowBuilder().addComponents(min);
+
+    modal.addComponents(firstActionRow);
 
     return modal;
 }

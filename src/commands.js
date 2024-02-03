@@ -225,6 +225,45 @@ const commands= [
         }
       ]
     },
+    {
+      name: 'insert-update-vendor',
+      description: 'Permette di inserire o modificare nome e categorie vendor',
+    },
+    {
+      name: 'show-vendor-guild',
+      description: 'Permette di visualizzare i vendor degli utenti del server',
+      options:
+      [
+        {
+          name:"user",
+          description:"L'utente di cui vuoi vedere il vendor",
+          required:false,
+          type: ApplicationCommandOptionType.Mentionable
+        }
+      ]
+    },
+    {
+      name: 'show-my-vendor',
+      description: 'Mostra il tuo vendor',
+    },
+    {
+      name:"show-vendor-by-categoria",
+      description:"Mostra i vendor che vendono una specifica categoria con il nome utente del proprietario del vendor",
+      options:
+      [
+        {
+          name:'scegli-categoria',
+          description:'Scegli la categoria',
+          type: ApplicationCommandOptionType.Number,
+          required:true,
+          choices:
+          Object.values(utils.categorieVendor).sort((a, b) => a.name.localeCompare(b.name)).map(item => ({
+            name: item.emoji+" "+item.name,
+            value: item.value,
+          }))
+        }
+      ]
+    },
   ];
 
   const rest = new REST({version:'10'}).setToken(process.env.TOKEN);

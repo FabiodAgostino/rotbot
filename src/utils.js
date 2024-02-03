@@ -1,4 +1,4 @@
-const VERSION = "1.0.1-b03";
+const VERSION = "1.0.2-b00";
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -63,9 +63,28 @@ const emojiLavorative =
     { name: 'Scassinare',value:16,emoji:"🔓" },
     { name: 'Disarmare trappole',value:17,emoji:"💣" },
     { name: 'Identificare oggetti',value:18,emoji:"💫" },
+]
 
-
-
+const categorieVendor =
+[
+    { name: 'Falegnameria',value:1,emoji:"🪚"},
+    { name: 'Forgiare utensili',value:2,emoji:"🛠️" },
+    { name: 'Mappe',value:3,emoji:"🗺️" },
+    { name: 'Cibo/cibo per potenziamenti',value:4,emoji:"🍲" },
+    { name: 'Armi e armature',value:5,emoji:"🔨" },
+    { name: 'Lingotti e leghe',value:6,emoji:"⛏️" },
+    { name: 'Archi, balestre e frecce',value:7,emoji:"🏹" },
+    { name: 'Pozioni e prodotti alchemici',value:8,emoji:"⚗️" },
+    { name: 'Pesce e pescetti',value:9,emoji:"🎣" },
+    { name: 'Agricoltura (cibo e reagenti)',value:10,emoji:"🌱" },
+    { name: 'Legna',value:11,emoji:"🪓" },
+    { name: 'Erboristeria (Polveri, loti neri, ecc)',value:12,emoji:"🌿" },
+    { name: 'Sartoria e armature in cuoio',value:13,emoji:"🧵" },
+    { name: 'Sangue',value:14,emoji:"🩸" },
+    { name: 'Cristalli, frammenti, polveri',value:15,emoji:"❄️" },
+    { name: 'Armi incantate',value:17,emoji:"⚔️" },
+    { name: 'Oggettini',value:17,emoji:"💍" },
+    { name: 'Nuclei e frammenti essenza cristallizzata',value:18,emoji:"🧊" },
 ]
 
 module.exports =
@@ -74,6 +93,11 @@ module.exports =
     classiTM,
     VERSION,
     emojiLavorative,
+    categorieVendor,
+    getCategorieVendor()
+    {
+        return categorieVendor.sort(this.confrontoPerNome);
+    },
     getEmojiLavorativeByName(name)
     {
         return emojiLavorative.filter(x=> x.name.toLowerCase()==name.toLowerCase())[0].emoji;
@@ -194,5 +218,8 @@ module.exports =
         }
       
         return 0; // Nomi uguali
-      }
+      },
+    isNumber(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
+    }
 }

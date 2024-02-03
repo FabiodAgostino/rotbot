@@ -129,7 +129,6 @@ async function getAuthorsBySkill(idGuild,skill)
 }
 async function insertSkill({name, author, idGuild, min,max,idAuthor})
     {
-        console.log(name,author,idGuild,min,max)
         const firebaseConnect = require('./firebaseConnect.js');
         const dataDaInserire = {
             id: crypto.randomUUID(),

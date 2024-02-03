@@ -3,6 +3,8 @@ const cacceOrganizzateService = require("./firestore/cacceOrganizzate.js")
 const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
 const skillService = require("./firestore/skills.js")
 const contestService = require("./firestore/contest.js")
+const vendorService = require("./firestore/utenteVendor.js")
+
 
 
 const generics = require('./generics.js'); 
@@ -25,8 +27,7 @@ module.exports = {
         await this.buttonStep3(interaction, information, guild, client);
         await this.buttonStep3(interaction, information, guild, client);
         await this.buttonInsertSkill(interaction, information, guild, client);
-
-
+        await this.buttonInsertVendor(interaction, information, guild, client);
     },
     async buttonSondaggioSiNo(interaction,information)
     {
@@ -533,6 +534,76 @@ module.exports = {
                     var user = (nickname != undefined && nickname!="") ? nickname : interaction.user.globalName;
                     var result=await skillService.insertOrUpdateSkills({name:splittedArray[1],author:user, idGuild:guild.id,min:minValue, max:massimo,idAuthor:interaction.user.id });
                  
+                    await submitted.update({
+                        content:result+utils.getRandomEmojiFelici(),
+                        components:[],
+                        ephemeral:true,
+                    });
+                }
+                
+                catch(errore)
+                {
+                    await submitted.update({
+                        content:"bro errore senti ioridion! "+utils.getRandomEmojiFelici(),
+                        components:[],
+                        ephemeral:true,
+                    });
+                }
+            }
+        }catch(error)
+        {
+            console.log(error)
+        }
+    },
+    async buttonInsertVendor(interaction,information,guild,client)
+    {
+        const splittedArray = interaction.customId.split('-');
+
+        if(splittedArray[0]!=="buttonVendor") return;
+        if(!information.isUtente)
+        {
+            await interaction.reply({content:"Non sei abilitato per accedere a questa funzione! 😡", ephemeral:true});
+            return;
+        }
+
+        var id= parseInt(splittedArray[1]);
+        if(splittedArray[2]!="u")
+            var data=await vendorService.getVendorById({idGuild:guild.id, idVendor:id});
+        else
+        {
+            var idOwner = splittedArray[1];
+            var data = await vendorService.getVendorAuthor({idGuild:guild.id,idOwner:idOwner});
+        }
+
+        var nameVendor = data.name == "temp" ? "" : data.name;
+        
+        await interaction.showModal(modals.modaleInserisciVendor(interaction.id,nameVendor));
+
+        const submitted = await interaction.awaitModalSubmit({
+            filter: async (i) => {
+                const filter =
+                    i.user.id === interaction.user.id &&
+                    i.customId === `modaleInsertVendor-${interaction.id}`;
+                return filter;
+            },
+            time: 100000,
+          }).catch(async x=>{
+                await interaction.followUp({content:"Una volta aperta la modale hai 60 secondi per rispondere, riesegui il comando e sii più rapido! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+                return;
+          });
+          if(submitted===undefined)
+            return;
+
+        const fields = submitted.fields;
+        const name=fields.getTextInputValue("nome");
+
+        try
+        {
+            if(name!="")
+            {
+                try
+                {
+                    var result=await vendorService.insertOrUpdateVendor({list:data.list,owner:data.owner,idOwner:data.idOwner,idGuild:data.idGuild, name:name})
                     await submitted.update({
                         content:result+utils.getRandomEmojiFelici(),
                         components:[],
