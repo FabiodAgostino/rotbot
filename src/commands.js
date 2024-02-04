@@ -264,6 +264,10 @@ const commands= [
         }
       ]
     },
+    {
+      name: 'show-all-commands',
+      description: 'Mostra tutti i comandi del server',
+    },
   ];
 
   const rest = new REST({version:'10'}).setToken(process.env.TOKEN);
@@ -281,9 +285,17 @@ const commands= [
       console.log("Errore:"+ error +" per server "+guildId);
     }
   }
+  function showAllCommands()
+  {
+    var text ="";
+    commands.forEach(command=>{
+      text+="* /"+command.name+" "+command.description+"\n";
+    })
+    return text;
+  }
     
 
-module.exports = {setCommands}
+module.exports = {setCommands,showAllCommands}
 
 
 

@@ -1,4 +1,6 @@
-const VERSION = "1.0.2-b00";
+const VERSION = "1.0.2-b01";
+
+var responseSondaggioSiNo = [];
 
 const dungeons = [
     { name: 'Kur Nughul 2',value:1,emoji:"🧛🏼‍♂️"},
@@ -94,6 +96,7 @@ module.exports =
     VERSION,
     emojiLavorative,
     categorieVendor,
+    responseSondaggioSiNo,
     getCategorieVendor()
     {
         return categorieVendor.sort(this.confrontoPerNome);
@@ -219,6 +222,21 @@ module.exports =
       
         return 0; // Nomi uguali
       },
+    getData() {
+        const dataCorrente = new Date();
+    
+        const giorno = String(dataCorrente.getUTCDate()).padStart(2, '0');
+        const mese = String(dataCorrente.getUTCMonth() + 1).padStart(2, '0'); // Mesi in JavaScript sono 0-based
+        const anno = dataCorrente.getUTCFullYear();
+    
+        const ora = String(dataCorrente.getUTCHours() + 1).padStart(2, '0'); // UTC+1
+        const minuto = String(dataCorrente.getUTCMinutes()).padStart(2, '0');
+        const secondo = String(dataCorrente.getUTCSeconds()).padStart(2, '0');
+    
+        const dataFormattata = `${giorno}/${mese}/${anno} ${ora}:${minuto}:${secondo}`;
+    
+        return dataFormattata;
+    },
     isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }

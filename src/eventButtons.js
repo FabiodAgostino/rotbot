@@ -18,7 +18,7 @@ module.exports = {
     {
         if(!interaction.isButton())return;
 
-        await this.buttonSondaggioSiNo(interaction,information);
+        await this.buttonSondaggioSiNo(interaction,information,guild);
         await this.buttonStartCaccia(interaction,information,guild);
         await this.buttonStopCaccia(interaction,information,guild,client);
         await this.buttonCaricaImmagine(interaction,information,guild,client);
@@ -29,7 +29,7 @@ module.exports = {
         await this.buttonInsertSkill(interaction, information, guild, client);
         await this.buttonInsertVendor(interaction, information, guild, client);
     },
-    async buttonSondaggioSiNo(interaction,information)
+    async buttonSondaggioSiNo(interaction,information,guild)
     {
         const splittedArray = interaction.customId.split('-');
 
@@ -40,25 +40,32 @@ module.exports = {
             return;
         }
 
-        if(votedMembers.has(interaction.user.id+"-"+interaction.message.id))
+        if(splittedArray[1]!="utenti")
+        {
+            if(votedMembers.has(interaction.user.id+"-"+interaction.message.id))
             return interaction.reply({content:"Hai già votato "+ utils.getRandomEmojiFelici(), ephemeral:true});
 
-        votedMembers.add(interaction.user.id+"-"+interaction.message.id);
+            votedMembers.add(interaction.user.id+"-"+interaction.message.id);
+        }
         const pollEmbed = interaction.message.embeds[0];
 
         if(!pollEmbed)return interaction.reply({
             content:"Errore",
             ephemeral:true
         });
-
         const yesField = pollEmbed.fields[0];
         const noField = pollEmbed.fields[1];
         const VoteCountedReply = "Il tuo voto è stato conteggiato!";
+
         switch(splittedArray[1])
         {
             case "si":
                 const newYesCount = parseInt(yesField.value) + 1;
                 yesField.value = newYesCount;
+
+                var idx=utils.responseSondaggioSiNo.findIndex(x=> x.id==parseInt(splittedArray[2]));
+                if(idx!=-1)
+                    utils.responseSondaggioSiNo[idx].list.push({author:interaction.member.nickname, response:true});
 
                 await interaction.reply({content:VoteCountedReply, ephemeral:true})
                 interaction.message.edit({embeds:[pollEmbed]});
@@ -68,9 +75,36 @@ module.exports = {
                 const newNoCount = parseInt(noField.value) + 1;
                 noField.value = newNoCount;
 
+                var idx=utils.responseSondaggioSiNo.findIndex(x=> x.id==parseInt(splittedArray[2]));
+                if(idx!=-1)
+                    utils.responseSondaggioSiNo[idx].list.push({author:interaction.member.nickname, response:false});
+
                 interaction.reply({content:VoteCountedReply, ephemeral:true})
                 await interaction.message.edit({embeds:[pollEmbed]});
                 break;
+
+            case "utenti":
+                var idx=utils.responseSondaggioSiNo.findIndex(x=> x.id==parseInt(splittedArray[2]));
+                if(idx==-1)
+                    return interaction.reply({content:"Mi spiace, il dettaglio del sondaggio è andato perso a causa di un crash.\nSe sei scontento di questo malfunzionamento prenditela con ioridion! "+utils.getRandomEmojiRisposta(), ephemeral:true});
+                var poll = utils.responseSondaggioSiNo[idx];
+                var si=poll.list.filter(x=> x.response).map(x=> x.author);
+                var no=poll.list.filter(x=> !x.response).map(x=> x.author);
+                var nomiSi = "";
+                var nomiNo = "";
+                if(si.length>0)
+                {
+                    nomiSi = "### SI:\n"
+                    si.forEach(x=> nomiSi+="* "+x+"\n");
+                }
+                if(no.length>0)
+                {
+                    nomiNo = "### NO:\n"
+                    no.forEach(x=> nomiNo+="* "+x+"\n");
+                }
+
+                var text = "**Autore**: "+poll.author+"\n"+"**Titolo**: "+poll.title+"\n"+"**Data**: "+poll.date+"\n"+nomiSi+nomiNo;
+                return interaction.reply({content:"### Dettaglio del sondaggio"+"\n\n"+text, ephemeral:true});
         }
     },
     async buttonStartCaccia(interaction,information,guild)

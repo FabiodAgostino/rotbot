@@ -9,6 +9,9 @@ const memeService = require('./firestore/meme.js');
 const utils = require('./utils.js'); 
 const modals = require('./modals.js'); 
 const generics = require('./generics.js'); 
+const commandsService = require('./commands.js'); 
+
+
 const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder } = require('discord.js');
 
 module.exports = {
@@ -30,7 +33,7 @@ module.exports = {
         case "show-all-meme": await this.showAllMeme(interaction,guild,information); break;
         case "show-skills-guild": await this.showAllSkills(interaction,guild,information); break;
         case "show-my-skills": await this.showMySkills(interaction,guild,information); break;
-        case "show-utenti-by-lavorativa": await this.showUtentiByLavorativa(interaction,guild,information); break;
+        case "show-utenti-by-skill": await this.showUtentiByLavorativa(interaction,guild,information); break;
         case "get-meme-by-word": await this.getMemeByWord(interaction,guild,information); break;
         case "get-leaderboard": await this.getLeaderBoard(interaction,guild,information); break;
         case "insert-update-skills": await this.insertOrUpdateSkills(interaction,guild,information); break;
@@ -40,6 +43,8 @@ module.exports = {
         case "show-vendor-by-categoria": await this.showVendorByCategoria(interaction,guild,information); break;
         case "get-random-meme": await interaction.reply({content:await memeService.getRandomMeme(guild.id)+" "+ utils.getRandomEmojiRisposta()}); break;
         case "get-version": interaction.reply({content:"ROTBOT VERSION: __"+utils.VERSION+"__ ⭐", ephemeral:true});break;
+        case "show-all-commands": interaction.reply({content:commandsService.showAllCommands(), ephemeral:true});break;
+
       }
       return;
     },

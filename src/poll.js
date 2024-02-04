@@ -15,9 +15,8 @@ module.exports = {
       
       switch(interaction.commandName)
       {
-        case "sondaggio-data": await this.sondaggioData(interaction,information); break;
-        case "sondaggio-evento-date": await this.sondaggoEventoDate(interaction,information); break;
-        case "sondaggio-si-no": await this.sondaggioSiNo(interaction,information); break;
+        case "sondaggio-generico": await this.sondaggoEventoDate(interaction,information); break;
+        case "sondaggio-si-no": await this.sondaggioSiNo(interaction,information,guild); break;
         case "sondaggio-caccia": await this.sondaggioCaccia(interaction,guild,information); break;
       }
       return;
@@ -176,7 +175,7 @@ module.exports = {
             filteredEmojis.forEach(x=> message.react(x))
         }
     },
-    async sondaggioSiNo(interaction,information)
+    async sondaggioSiNo(interaction,information,guild)
     {
       if(!information.isUtente)
       {
@@ -222,17 +221,26 @@ module.exports = {
         }
         );
 
-            const pollButtons = new ActionRowBuilder()
-              .addComponents(
-                new ButtonBuilder()
-                  .setLabel('Si')
-                  .setCustomId('poll-si-'+reply.id)
-                  .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                  .setLabel('No')
-                  .setCustomId('poll-no-'+reply.id)
-                  .setStyle(ButtonStyle.Danger)
-              );
+      var id= utils.idRnd();
+      var poll = {idGuild:guild.id, list: [], date: utils.getData(), author: interaction.member.nickname, title:pollQuestion, id:id};
+
+      utils.responseSondaggioSiNo.push(poll);
+
+      const pollButtons = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setLabel('Si')
+            .setCustomId('poll-si-'+id)
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
+            .setLabel('No')
+            .setCustomId('poll-no-'+id)
+            .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder()
+            .setLabel('Mostra dettaglio')
+            .setCustomId('poll-utenti-'+id)
+            .setStyle(ButtonStyle.Primary)
+        );
       if(submitted)
         submitted.editReply({components:[pollButtons]});
     },

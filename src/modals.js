@@ -40,14 +40,14 @@ function sondaggioEventoDate(interactionId)
 
     const favoriteColorInput = new TextInputBuilder()
       .setCustomId('meta')
-      .setLabel("Meta?")
+      .setLabel("Titolo")
       .setPlaceholder("Kur Nughul 2")
       .setStyle(TextInputStyle.Short);
 
     const hobbiesInput = new TextInputBuilder()
       .setCustomId('date')
-      .setLabel("Quali sono le date?")
-      .setPlaceholder("-🍎 10/10/2023 \n-🍋 11/10/2023 \n\n Oppure...\n\n -10/10/2023 \n -11/10/2023")
+      .setLabel("Opzioni")
+      .setPlaceholder("-🍎 a \n-🍋 b \n\n Oppure...\n\n -a \n -b")
       .setStyle(TextInputStyle.Paragraph);
     
     const firstActionRow = new ActionRowBuilder().addComponents(favoriteColorInput);
@@ -68,7 +68,7 @@ function sondaggioSiNo(interactionId)
 
     const hobbiesInput = new TextInputBuilder()
       .setCustomId('question')
-      .setLabel("Quali sono le mete?")
+      .setLabel("Sondaggio base")
       .setPlaceholder("Inserisci qui il testo del tuo sondaggio.")
       .setStyle(TextInputStyle.Paragraph);
 
