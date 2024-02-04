@@ -208,7 +208,7 @@ const commands= [
       description: 'Mostra le tue skills',
     },
     {
-      name:"show-utenti-by-lavorativa",
+      name:"show-utenti-by-skill",
       description:"Mostra gli utenti che possiedono una specifica lavorativa con il dettaglio del valore della skill",
       options:
       [
