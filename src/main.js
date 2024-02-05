@@ -6,20 +6,18 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent
-  ],
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+    ],
 });
 const polls = require('./poll.js'); 
 const eventButtons = require('./eventButtons.js'); 
 const eventCommands = require('./eventCommands.js'); 
+const eventGenericsCommands = require('./genericsCommands.js'); 
 const eventMessages = require('./eventMessages.js'); 
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
-const serverDiscordService = require('./firestore/serverDiscord.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
-const commands = require('./commands.js'); 
 const utils = require('./utils.js'); 
-
-
 
 
 
@@ -48,15 +46,11 @@ client.on(Events.MessageCreate,async (message) =>{
 })
 
 client.on(Events.GuildCreate, async (guild) => {
-  const server =await serverDiscordService.getServer(guild.id);
-  await commands.setCommands(guild.id);
-  if(server==undefined || server.length==0)
-  {
-    await serverDiscordService.insertServer({idGuild:guild.id, name:guild.name});
-    console.log(`Il bot è stato aggiunto al db. ${guild.name}`);
-  }
-  else
-    console.log(`Il bot è gia presente nel db. ${guild.name}`);
+  await eventGenericsCommands.executeGenericsEvent(guild,client);
+});
+
+
+client.on(Events.GuildMemberAdd, (member) => {
 });
 
 
