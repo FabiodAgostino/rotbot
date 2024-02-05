@@ -12,7 +12,8 @@ const generics = require('./generics.js');
 const commandsService = require('./commands.js'); 
 
 
-const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder } = require('discord.js');
+const { ButtonStyle,ComponentType,ActionRowBuilder,ButtonBuilder  } = require('discord.js');
+const { splitMessage } = require('discord.js');
 
 module.exports = {
     async executeCommandsEvent(interaction, guild,information)
@@ -515,7 +516,6 @@ module.exports = {
       await this.showMySkills(interaction,guild,information,user.id, username);
       return;
     }
-    await interaction.deferReply({ ephemeral: true });
 
 
     let gruppiPerNome = {};
@@ -525,9 +525,10 @@ module.exports = {
       } else {
         gruppiPerNome[obj.name].push(obj);
       }
+
     });
-    
     let arrayDiArray = Object.values(gruppiPerNome);
+
     var i = 0;
     var embeds = [];
     
@@ -555,9 +556,7 @@ module.exports = {
     const result = embeds.map(x => x.name).toString().replace(/,/g, "");
     try
     {
-      await interaction.editReply({
-        content:"Ecco a te la lista delle skills di gilda! "+utils.getRandomEmojiFelici()+"\n\n"+result
-      })
+      await splitMessageAndSend(interaction, "Ecco a te la lista delle skills di gilda! "+utils.getRandomEmojiFelici()+"\n\n"+result);
     }
     catch(error)
     {
@@ -722,6 +721,8 @@ module.exports = {
   async showAllVendor(interaction, guild, information)
   {
     const vendors = await vendorService.getAllVendorGuild(guild.id);
+    await interaction.deferReply({ ephemeral: true });
+
     if(vendors.length==0)
     {
       try
@@ -746,7 +747,6 @@ module.exports = {
       await this.showMyVendor(interaction,guild,information,user.id, username);
       return;
     }
-    await interaction.deferReply({ ephemeral: true });
 
 
     let gruppiPerNome = {};
@@ -922,5 +922,49 @@ module.exports = {
     }
 
   },
+}
+async function splitMessageAndSend(interaction, content) {
+  const maxLength = 1800;
+  const messages = [];
+
+  if (interaction.deferred || interaction.replied) {
+    // Se l'interazione è già stata differita o è stata inviata una risposta, usa followUp direttamente
+    const chunks = content.match(/[\s\S]{1,1800}(\n|$)|.*/g) || [];
+    for (const chunk of chunks) {
+      messages.push(chunk);
+    }
+
+    for (const message of messages) {
+      await interaction.followUp(message);
+    }
+  } else {
+    // Altrimenti, differisci la risposta e invia i messaggi successivi
+    await interaction.deferReply({ ephemeral: true });
+
+    const chunks = content.match(/[\s\S]{1,1800}(\n|$)|.*/g) || [];
+    let currentMessage = '';
+
+    for (const chunk of chunks) {
+      if (currentMessage.length + chunk.length <= maxLength) {
+        // Se aggiungendo il chunk non superiamo la lunghezza massima, aggiungilo al messaggio corrente
+        currentMessage += chunk;
+      } else {
+        // Aggiungi il messaggio corrente ai messaggi e reinizializza con il chunk attuale
+        messages.push(currentMessage);
+        currentMessage = chunk;
+      }
+    }
+
+    // Aggiungi l'ultimo messaggio alla lista
+    messages.push(currentMessage);
+
+    // Invia i messaggi successivi
+    for (const message of messages) {
+      await interaction.followUp({
+        content: message,
+        ephemeral: true
+      });
+    }
+  }
 }
 

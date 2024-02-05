@@ -4,12 +4,8 @@ const {REST, Routes, ApplicationCommandOptionType} = require("discord.js")
 
 const commands= [
     {
-      name: 'sondaggio-data',
-      description: 'Crea un sondaggio multi opzione per una data '
-    },
-    {
-      name: 'sondaggio-evento-date',
-      description: 'Crea un sondaggio singola opzione per molte date'
+      name: 'sondaggio-generico',
+      description: 'Crea un sondaggio generico'
     },
     {
       name: 'insert-meme',

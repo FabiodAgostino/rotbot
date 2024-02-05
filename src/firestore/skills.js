@@ -53,7 +53,7 @@ async function getAllSkillsGuild(idGuild)
             console.error("Errore durante il recupero dei documenti da Firestore:", error);
         }
         console.log("getAllSkillsGuild OK");
-        return array;
+        return array.sort(utils.confrontoPerNome);
 }
 
 async function getSingleSkillAuthor(idGuild,idAuthor,name) 
