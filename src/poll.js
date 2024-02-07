@@ -129,20 +129,20 @@ module.exports = {
     
         const emojis=fields.getTextInputValue("date").match(emojiRegex);
         var filteredEmojis= emojis == null ? new Array() : emojis;
-        if(filteredEmojis.length!==0)
-        {
-          if(filteredEmojis.length>mete.length || filteredEmojis.length<mete.length)
-          {
-            if(submitted)
-            {
-              await submitted.reply({
-                content:"Rispetta il formato descritto nella modale",
-                ephemeral:true
-              });
-              return;
-            }
-          }
-        }
+        // if(filteredEmojis.length!==0)
+        // {
+        //   if(filteredEmojis.length>mete.length || filteredEmojis.length<mete.length)
+        //   {
+        //     if(submitted)
+        //     {
+        //       await submitted.reply({
+        //         content:"Rispetta il formato descritto nella modale",
+        //         ephemeral:true
+        //       });
+        //       return;
+        //     }
+        //   }
+        // }
     
     
         let embedFields = [];
