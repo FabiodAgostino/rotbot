@@ -1,12 +1,11 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType} = require('discord.js');
-const setEmoji = require('./autoSetEmoji.js'); 
 const emojiRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 const modals = require('./modals.js'); 
 const generics = require('./generics.js'); 
 const utils = require('./utils.js'); 
 const dungeonsFirebase = require('./firestore/dungeon.js')
 const ruoloTipoRuoloService = require("./firestore/ruoloTipoRuolo.js")
-
+const emojiServices = require("./emojisServices.js");
 
 module.exports = {
     async executePollsEvents(interaction, guild,information)
@@ -69,12 +68,12 @@ module.exports = {
     
     
         let embedFields = [];
-        for(let i=0;i<mete.length;i++)
-        {
-          if(filteredEmojis[i]==undefined) filteredEmojis[i] = setEmoji.setEmoji(i);
-          const text=(filteredEmojis[i]+" "+mete[i]).replace('undefined','');
-          embedFields.push({name:text,value:'     ' });
-        }
+        // for(let i=0;i<mete.length;i++)
+        // {
+        //   if(filteredEmojis[i]==undefined) filteredEmojis[i] = setEmoji.setEmoji(i);
+        //   const text=(filteredEmojis[i]+" "+mete[i]).replace('undefined','');
+        //   embedFields.push({name:text,value:'     ' });
+        // }
     
         const exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
@@ -125,33 +124,16 @@ module.exports = {
     
         const fields = submitted.fields;
         const data=fields.getTextInputValue("meta");
-        var mete=fields.getTextInputValue("date").replace('\n','').replace(emojiRegex).split('-').filter(x=> x!=='');
+        var mete=fields.getTextInputValue("date");
     
-        const emojis=fields.getTextInputValue("date").match(emojiRegex);
-        var filteredEmojis= emojis == null ? new Array() : emojis;
-        // if(filteredEmojis.length!==0)
-        // {
-        //   if(filteredEmojis.length>mete.length || filteredEmojis.length<mete.length)
-        //   {
-        //     if(submitted)
-        //     {
-        //       await submitted.reply({
-        //         content:"Rispetta il formato descritto nella modale",
-        //         ephemeral:true
-        //       });
-        //       return;
-        //     }
-        //   }
-        // }
-    
-    
+        const value=emojiServices.findEmoji(mete);
         let embedFields = [];
-        for(let i=0;i<mete.length;i++)
+        
+        for(let i=0; i<value.mete.length; i++)
         {
-          if(filteredEmojis[i]==undefined) filteredEmojis[i] = setEmoji.setEmoji(i);
-          const text=(filteredEmojis[i]+" "+mete[i]).replace('undefined','');
-          embedFields.push({name:text,value:'     ' });
+          embedFields.push({name:value.mete[i],value:'     ' });
         }
+    
     
         const exampleEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
@@ -172,7 +154,10 @@ module.exports = {
               fetchReply:true,
               allowedMentions:{parse:["everyone"]}
             });
-            filteredEmojis.forEach(x=> message.react(x))
+            if(value.newEmojis==true)
+              await submitted.followUp({content:"Non hai rispettato il formato descritto nella modale e ho inserito randomicamente due emoji! "+await utils.getRandomEmojiFelici(), ephemeral:true});
+
+            value.emoji.forEach(x=> message.react(x))
         }
     },
     async sondaggioSiNo(interaction,information,guild)
