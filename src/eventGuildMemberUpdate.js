@@ -26,9 +26,10 @@ async function sendInstuction(guildId,newMember, oldMember)
             "è possibile invia richiesta di accesso al forum seguendo questa procedura (*skippa questa parte se non sei gildato):\n 1)Navighi all'indirizzo https://themiraclegdr.com/forum/index.php\n2)Accedi\n"+
             "3)Clicca in alto a destra sul bottone del tuo profilo\n4)Clicca su 'Control panel' e successivamente sulla tab 'Usergroup'\n5)Check sul forum di gilda e submit sul bottone in basso.\n\n"+
             "Ti chiedo inoltre di inserire le skills che ha il tuo pg (o che hai intenzione di alzare) all'interno del bot usando il comando /insert-update-skills, e di inserire il tuo eventuale vendor "+
-            "con il comando /insert-update-vendor.\nPer leggere la lista completa dei comandi lancia il comando /show-all-commands.\nPer eventuali problemi contatta lo sviluppatore: yoridyonenloke\n\n" +
+            "con il comando /insert-update-vendor.\nPer leggere la lista completa dei comandi lancia il comando /show-all-commands.\nPer accedere ai tools e altri contenuti di TM naviga sul sito: https://fabiodagostino.github.io/rot/ (se sei un utente del server di Rotiniel effettuando la login visualizzerai contenuti extra).\n"+
+            "Per eventuali problemi contatta lo sviluppatore: yoridyonenloke\n\n" +
             "Grazie della collaborazione e buon gioco! "+utils.getRandomEmojiFelici()+"\n\n\n"+
-            "*i comandi del bot verranno eseguiti solo all'interno del server "+ruoli[0].guild;
+            "*i comandi del bot verranno eseguiti solo se digitati all'interno del server "+ruoli[0].guild;
 
             await user.send(message);
         } catch (error) {
