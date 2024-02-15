@@ -798,7 +798,6 @@ module.exports = {
   {
     ownerId= idOwner!=undefined ? idOwner : interaction.user.id;
     const vendor = await vendorService.getVendorAuthor({idGuild:guild.id, idOwner:ownerId});
-    await interaction.deferReply({ ephemeral: true });
 
     if(vendor==undefined)
     {
@@ -839,9 +838,10 @@ module.exports = {
     try
     {
       var message = idOwner!= undefined ? "Ecco a te il vendor di **"+owner+"**! " : "Ecco il tuo vendor! ";
-      await interaction.editReply({
-        content:message+utils.getRandomEmojiFelici()+"\n\n"+result
-      })
+      await splitMessageAndSend(interaction, message+utils.getRandomEmojiFelici()+"\n\n"+result,true);
+      // await interaction.editReply({
+      //   content:message+utils.getRandomEmojiFelici()+"\n\n"+result
+      // })
     }
     catch(error)
     {
@@ -923,18 +923,17 @@ module.exports = {
 
   },
 }
-async function splitMessageAndSend(interaction, content) {
+async function splitMessageAndSend(interaction, content, vendor=false) {
   const maxLength = 1800;
   const messages = [];
-
   if (interaction.deferred || interaction.replied) {
     // Se l'interazione è già stata differita o è stata inviata una risposta, usa followUp direttamente
     const chunks = content.match(/[\s\S]{1,1800}(\n|$)|.*/g) || [];
     for (const chunk of chunks) {
       messages.push(chunk);
     }
-
     for (const message of messages) {
+      if(message!=="")
       await interaction.followUp(message);
     }
   } else {

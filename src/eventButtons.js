@@ -84,27 +84,29 @@ module.exports = {
                 break;
 
             case "utenti":
-                var idx=utils.responseSondaggioSiNo.findIndex(x=> x.id==parseInt(splittedArray[2]));
-                if(idx==-1)
-                    return interaction.reply({content:"Mi spiace, il dettaglio del sondaggio è andato perso a causa di un crash.\nSe sei scontento di questo malfunzionamento prenditela con ioridion! "+utils.getRandomEmojiRisposta(), ephemeral:true});
-                var poll = utils.responseSondaggioSiNo[idx];
-                var si=poll.list.filter(x=> x.response).map(x=> x.author);
-                var no=poll.list.filter(x=> !x.response).map(x=> x.author);
-                var nomiSi = "";
-                var nomiNo = "";
-                if(si.length>0)
-                {
-                    nomiSi = "### SI:\n"
-                    si.forEach(x=> nomiSi+="* "+x+"\n");
-                }
-                if(no.length>0)
-                {
-                    nomiNo = "### NO:\n"
-                    no.forEach(x=> nomiNo+="* "+x+"\n");
-                }
+                // var idx=utils.responseSondaggioSiNo.findIndex(x=> x.id==parseInt(splittedArray[2]));
+                // if(idx==-1)
+                //     return interaction.reply({content:"Mi spiace, il dettaglio del sondaggio è andato perso a causa di un crash.\nSe sei scontento di questo malfunzionamento prenditela con ioridion! "+utils.getRandomEmojiRisposta(), ephemeral:true});
+                // var poll = utils.responseSondaggioSiNo[idx];
+                // var si=poll.list.filter(x=> x.response).map(x=> x.author);
+                // var no=poll.list.filter(x=> !x.response).map(x=> x.author);
+                // var nomiSi = "";
+                // var nomiNo = "";
+                // if(si.length>0)
+                // {
+                //     nomiSi = "### SI:\n"
+                //     si.forEach(x=> nomiSi+="* "+x+"\n");
+                // }
+                // if(no.length>0)
+                // {
+                //     nomiNo = "### NO:\n"
+                //     no.forEach(x=> nomiNo+="* "+x+"\n");
+                // }
 
-                var text = "**Autore**: "+poll.author+"\n"+"**Titolo**: "+poll.title+"\n"+"**Data**: "+poll.date+"\n"+nomiSi+nomiNo;
-                return interaction.reply({content:"### Dettaglio del sondaggio"+"\n\n"+text, ephemeral:true});
+                // var text = "**Autore**: "+poll.author+"\n"+"**Titolo**: "+poll.title+"\n"+"**Data**: "+poll.date+"\n"+nomiSi+nomiNo;
+                // return interaction.reply({content:"### Dettaglio del sondaggio"+"\n\n"+text, ephemeral:true});
+                return interaction.reply({content:"Funzionalità attualmente in manutenzione", ephemeral:true});
+
         }
     },
     async buttonStartCaccia(interaction,information,guild)

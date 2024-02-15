@@ -18,7 +18,7 @@ async function getRuoloTipoRuolo(guildId,role=null,tipoRuolo=null)
             const querySnapshot = await getDocs(que);
             
             querySnapshot.forEach((doc) => {
-                array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guildId});
+                array.push({role:doc.data().role,tipoRuolo:doc.data().tipoRuolo, guildId:doc.data().guildId, guild:doc.data().guild});
         });
         } catch (error) {
             console.log("getRuoloTipoRuolo KO");

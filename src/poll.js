@@ -209,7 +209,7 @@ module.exports = {
       var id= utils.idRnd();
       var poll = {idGuild:guild.id, list: [], date: utils.getData(), author: interaction.member.nickname, title:pollQuestion, id:id};
 
-      utils.responseSondaggioSiNo.push(poll);
+      // utils.responseSondaggioSiNo.push(poll);
 
       const pollButtons = new ActionRowBuilder()
         .addComponents(

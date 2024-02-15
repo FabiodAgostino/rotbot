@@ -17,6 +17,8 @@ const eventGenericsCommands = require('./genericsCommands.js');
 const eventMessages = require('./eventMessages.js'); 
 const fireBaseConnect = require('./firestore/firebaseConnect.js'); 
 const ruoloTipoRuoloService = require('./firestore/ruoloTipoRuolo.js'); 
+const eventGuildMemberUpdate = require('./eventGuildMemberUpdate.js'); 
+
 const utils = require('./utils.js'); 
 
 
@@ -54,7 +56,19 @@ client.on(Events.GuildMemberAdd, (member) => {
 });
 
 
-
+client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+  const guildId = newMember.guild.id;
+  try
+  {
+    await eventGuildMemberUpdate.sendInstuction(guildId,newMember,oldMember);
+    console.log("sendInstuction OK");
+  }
+  catch(exception)
+  {
+    console.log("sendInstuction KO");
+    return;
+  }
+});
 
 client.login(process.env.TOKEN);
 
