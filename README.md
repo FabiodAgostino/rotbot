@@ -12,3 +12,5 @@ ROTBOT è un bot per Discord sviluppato con Discord.js 14 e Firebase come databa
 📦 Tecnologie utilizzate
 Discord.js 14
 Firebase
+
+*Attualmente il servizio non è hostato.
